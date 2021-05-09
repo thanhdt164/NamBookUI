@@ -5,9 +5,18 @@
           :state="state"
           @changeState="changeState"
         ></b-menu>
+        <!-- Trang home -->
         <b-content 
+          v-if="dataSource && dataSource.length"
           :dataSource="dataSource"
           v-model="dataSource"
+          :isGenresFilter="isGenresFilter"
+        ></b-content>
+        <!-- Trang book-detail -->
+        <b-content
+          v-if="dataBook && dataBook.length"
+          :dataBook="dataBook"
+          v-model="dataBook"
         ></b-content>
         <b-footer/>
     </div>
@@ -35,6 +44,14 @@ export default {
         dataSource: {
             type : [Array, Object],
             default : () =>  []
+        },
+        dataBook: {
+            type : [Array, Object],
+            default : () =>  []
+        },
+        isGenresFilter: {
+            type : Boolean,
+            default: false
         }
     },
     methods:{

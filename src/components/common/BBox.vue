@@ -2,12 +2,18 @@
     <div class="box">
             <div class="header-box">
                 <div class="title">{{items[0].title}}</div>
-                <div class="see-more">
+                <div class="see-more" v-if="!isGenresFilter">
                     <button type="button" class="btn btn-primary">See more</button>
                 </div>
             </div>
-            <div class="content-box" >
-                <b-item-card v-for="(item, index) in items" v-show="index>0" :key="item"  :data="item"></b-item-card>
+            <div :class="[isGenresFilter?'isGenresFilter':'' ,'content-box']">
+                <b-item-card 
+                    v-for="(item, index) in items" 
+                    v-show="index>0" 
+                    :key="item"  
+                    :data="item"
+                    :isGenresFilter="isGenresFilter"
+                ></b-item-card>
             </div>
     </div>
 </template>
@@ -26,8 +32,12 @@ export default {
     },
     props : {
         items : {
-            typeof: [Array, Object],
-            default: []
+            type: [Array, Object],
+            default: () => []
+        },
+        isGenresFilter: {
+            type: Boolean,
+            default: false
         }
     }
 
@@ -51,11 +61,12 @@ export default {
         color: #333333;
     }
     .header-box button{
-    
+        background-color: #039be5;
+        font-size: 14px;
     }
 
     .content-box{
-        height: 340px;
+        height: 348px;
         padding: 8px;
         display: flex;
         flex-wrap: wrap;
@@ -63,5 +74,10 @@ export default {
         justify-content: space-between;
         /* overflow:auto; */
         overflow: hidden;
+    }
+    .isGenresFilter{
+        height: auto;
+        overflow: initial;
+        justify-content: left;
     }
 </style>

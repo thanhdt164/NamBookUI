@@ -5,6 +5,11 @@ export default class baseAPI {
     constructor(name) { this.name = name }
 
     /* Methods */
+    /**
+     * Hàm lấy toàn bộ dữ liệu
+     * Created by: thanhdt - 01.05.2021
+     * @param {*} callback 
+     */
     getAll(callback) {
         http.get(`${this.name}`)
             .then(response => {
@@ -15,6 +20,12 @@ export default class baseAPI {
             .catch(e => { console.log(e) })
     }
 
+    /**
+     * Hàm lấy dữ liệu theo id
+     * @param {*} id 
+     * @param {*} callback 
+     * @returns 
+     */
     getById(id, callback) {
         return http.get(`${this.name}/${id}`)
             .then(response => {
@@ -24,5 +35,7 @@ export default class baseAPI {
             })
             .catch(e => { console.log(e) })
     }
+
+
 
 }

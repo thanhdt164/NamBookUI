@@ -1,5 +1,5 @@
 <template>
-    <div class="item-card">
+    <div :class="[isGenresFilter?'isGenresFilter':'' ,'item-card']">
         <div class="img">
             <img src="https://books.google.com/books/content/images/frontcover/XDlTjg_kyywC?fife=w160-h230" alt="">
         </div>
@@ -34,6 +34,10 @@ export default {
         item: {
             type: [Object, Array],
             default: () => {}
+        },
+        isGenresFilter:{
+            type: Boolean,
+            default: false
         }
     }
 }
@@ -52,6 +56,9 @@ export default {
         border-radius: 1px;
         background-color: #fff;
     }
+    .isGenresFilter{
+        margin: 0 4px 8px !important;
+    }
     .img{
         width: 100%;
         height: 230px;
@@ -61,6 +68,7 @@ export default {
     .img:hover{
          filter: grayscale(80%);
          cursor: pointer;
+         background-color: #D5D5D5;
     }
     .img img{
         height: 100%;

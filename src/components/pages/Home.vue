@@ -5,6 +5,7 @@
               :dataSource="dataSource"
               v-model="dataSource"
               @changeState="changeState"
+              :isGenresFilter="isGenresFilter"
             ></b-container>
     </div>
 </template>
@@ -13,7 +14,7 @@
 
 import BContainer from '@/components/common/BContainer.vue'
 import bookAPI from '@/api/bookAPI.js'
-import Book from '@/models/Book.js'
+// import Book from '@/models/Book.js'
 
 export default {
     name: 'home',
@@ -51,24 +52,16 @@ export default {
                     realPrice: 156.797
                     },
                     {},{},{},{},{},{},{},]
-            ]
+            ],
+            isGenresFilter : false,
+            books: null
         }
     },
     components: {
         BContainer
     },
     created(){
-        var data;
-         bookAPI.getAll((res) => {
-             data = res;
-             console.log(data);
-             res = res.slice(0, 9);
-             res.forEach(el => {
-                 var item = Book.init();
-                 console.log(el, item);
-             });
-
-        });
+        this.getBooks();
     },
     methods: {
         /**
@@ -94,6 +87,15 @@ export default {
                         realPrice: 156.797
                     },
                     {},{},{},{},{},{},{},],];
+        },
+        /**
+         * Hàm lấy dữ liệu sách
+         * Created by: thanhdt - 01.05.2021
+         */
+        getBooks(){
+            bookAPI.getAll((res) => {
+                console.log(res)
+            });
         },
         /**
          * Hàm lấy dữ liệu trang Home

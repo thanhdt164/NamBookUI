@@ -1,4 +1,5 @@
-export default class Book {
+import Comment from '@/models/Comment.js'
+class Book {
 
     init() {
         return {
@@ -7,7 +8,9 @@ export default class Book {
             avatar: null,
             price: null,
             sale: null,
-            real_price: null
+            real_price: null,
+            comment_obj: new Comment(),
         }
     }
 }
+export default new Book();
