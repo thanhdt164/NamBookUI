@@ -1,27 +1,38 @@
 <template>
     <div :class="[isGenresFilter?'isGenresFilter':'' ,'item-card']">
-        <div class="img">
-            <img src="https://books.google.com/books/content/images/frontcover/XDlTjg_kyywC?fife=w160-h230" alt="">
+        <div class="img" @click="bookClicked(data.book_id)">
+            <img :src="`${data.avatar}`" alt="">
         </div>
         <div class="content">
-            <div class="title">
-                <a href="">Touching the Earth: Guided Meditations for Mindfulness Practice</a>   
+            <div class="title" @click="bookClicked(data.book_id)">
+                <a>{{data.book_nm}}</a>   
             </div>
             <div class="author">
-                <a href="">Thich Nhat Hanh</a>
+                <a href="">{{data.author_nm}}</a>
             </div>
             <div class="price">
-                {{230.584}}đ
+                {{data.price}}đ
             </div>
             <div class="rate">
                 <div class="star col-6">
-                    <fa icon="user-secret"></fa>
-                    <fa icon="user-secret"></fa>
-                    <fa icon="user-secret"></fa>
-                    <fa icon="user-secret"></fa>
-                    <fa icon="user-secret"></fa>
+                    <div class="rating">
+                        <div class="rating-upper" style="width: 82%">
+                            <span>★</span>
+                            <span>★</span>
+                            <span>★</span>
+                            <span>★</span>
+                            <span>★</span>
+                        </div>
+                        <div class="rating-lower">
+                            <span>★</span>
+                            <span>★</span>
+                            <span>★</span>
+                            <span>★</span>
+                            <span>★</span>
+                        </div>
+                    </div>
                 </div>
-                <div class="real-price col-6">{{156.797}}đ</div>
+                <div class="real-price col-6" >{{data.price * (1-data.sale)}}đ</div>
             </div>
         </div>
     </div>
@@ -31,7 +42,7 @@
 export default {
     name: 'b-item-card',
     props:{
-        item: {
+        data: {
             type: [Object, Array],
             default: () => {}
         },
@@ -39,7 +50,20 @@ export default {
             type: Boolean,
             default: false
         }
-    }
+    },
+    created(){
+        
+    },
+    methods: {
+        /**
+         * Hàm xử lý khi bấm vào avatar hoặc title book
+         * Created by: thanhdt - 09.05.2021
+         */
+        bookClicked(bookId){
+            this.$router.push({ name: 'book-detail', params: {bookId: bookId } })
+        }
+    },
+    
 }
 </script>
 
@@ -66,12 +90,18 @@ export default {
         justify-content: space-around;
     }
     .img:hover{
-         filter: grayscale(80%);
+         filter: grayscale(100%);
          cursor: pointer;
-         background-color: #D5D5D5;
+         background-color: gray;
     }
     .img img{
-        height: 100%;
+        width: 100%;
+        transition: transform .5s ease
+    }
+    .img img:hover{
+        transform: scale(1.08);
+        /* border: 2px solid #fff; */
+        box-shadow: 1px 2px #D5D5D5;
     }
     .content{
         padding: 7px 10px;
@@ -88,7 +118,12 @@ export default {
         display: block;
         width: 100%;
         color: #333333;
+        cursor: pointer;
     }
+    .content .title a:hover{
+        text-decoration: underline;
+    }
+
     .content .author {
         overflow: hidden;
         white-space: nowrap;

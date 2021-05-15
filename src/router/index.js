@@ -1,7 +1,6 @@
 import Vue from 'vue'
 import Home from '@/components/pages/Home.vue'
 import BookDetail from '@/components/pages/BookDetail.vue'
-import HomeRouters from './home.js'
 
 import Router from 'vue-router'
 
@@ -10,35 +9,29 @@ Vue.use(Router)
 const router = new Router({
     mode: 'history',
     routes: [{
-            path: '',
-            redirect: '/home'
-        },
-        {
-            path: '/home',
+            path: '/DTTBook/home',
             name: 'home',
             component: Home,
         },
         {
-            path: '/books/:id',
+            path: '/DTTBook/genres/:genresId',
+            name: 'book-by-genres',
+            component: Home,
+        },
+        {
+            path: '/DTTBook/books/:bookId',
             name: 'book-detail',
             component: BookDetail
         },
         {
-            path: '/topChart',
-            name: 'topChart',
+            path: '/DTTBook/top-chart',
+            name: 'top-chart',
             component: Home,
         },
         {
-            path: '/newArrivals',
-            name: 'newArrivals',
+            path: '/DTTBook/new-arrivals',
+            name: 'new-arrivals',
             component: Home,
-        },
-        {
-            path: '/DTTBook',
-            redirect: '/DTTBook/home',
-            children: [
-                ...HomeRouters,
-            ]
         }
     ]
 })

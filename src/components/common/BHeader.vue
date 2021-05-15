@@ -12,7 +12,9 @@
         </div>
         <div class="space col-2"></div>
         <div class="avatar col-2">
-            <div class="toggle"></div>
+            <div class="toggle">
+                <font-awesome-icon icon="th" class="th"/>
+            </div>
             <div class="img">
                 <img src="https://lh3.googleusercontent.com/ogw/ADGmqu9HKP2aukmMBAbPzUiv7aM7E9WJ1sXtDvJr7iXm=s32-c-mo" alt="">
             </div>
@@ -61,8 +63,16 @@ export default {
         height: 32px;
         width: 32px;
         border-radius: 50%;
+        position: relative;
+        left: 200px;
     }
     .avatar .toggle{
-        width: 220px;
+        position: relative;
+        left: 185px;
+        font-size: 20px;
+    }
+    .th{
+        font-size: 16px;
+        color: #6D6D6D;
     }
 </style>

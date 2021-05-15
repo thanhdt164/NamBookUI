@@ -1,64 +1,101 @@
 <template>
-    <div>
-        <b-header/>
-        <b-menu 
-          :state="state"
-          @changeState="changeState"
-        ></b-menu>
+    <div> 
         <!-- Trang home -->
         <b-content 
-          v-if="dataSource && dataSource.length"
-          :dataSource="dataSource"
-          v-model="dataSource"
-          :isGenresFilter="isGenresFilter"
+          v-if="dataSourceX && dataSourceX.length"
+          :dataSource="dataSourceX"
+          v-model="dataSourceX"
+          :isGenresFilter="isGenresFilterX"
         ></b-content>
         <!-- Trang book-detail -->
         <b-content
-          v-if="dataBook && dataBook.length"
-          :dataBook="dataBook"
-          v-model="dataBook"
+          v-if="bookX"
+          :book="bookX"
+          :dataBook="dataBookX"
+          v-model="bookX"
+          @bookClicked="bookClicked"
         ></b-content>
+       
         <b-footer/>
     </div>
 </template>
 
 <script>
-import BHeader from '@/components/common/BHeader.vue'
-import BMenu from '@/components/common/BMenu.vue'
+
 import BContent from '@/components/common/BContent.vue'
 import BFooter from '@/components/common/BFooter.vue'
 
 export default {
     name: 'container',
+    data(){
+        return {
+            dataSourceX: null,
+            stateX: null,
+            dataBookX: null,
+            bookX: null,
+            isGenresFilterX: null
+        }
+    },
     components: {
-        BHeader,
-        BMenu,
         BContent,
         BFooter
     },
     props: {
-        state : {
-            type: String,
-            default: 'home'
-        },
         dataSource: {
             type : [Array, Object],
             default : () =>  []
         },
         dataBook: {
-            type : [Array, Object],
-            default : () =>  []
+            type : [Object, Array],
+            default : () => []
+        },
+        book: {
+            type: Object,
+            default: null
         },
         isGenresFilter: {
             type : Boolean,
             default: false
         }
     },
+    created(){
+    },
     methods:{
-        changeState(state){
-            this.state = state;
-            this.$emit('changeState', this.state);
+        /**
+         * Hàm xử lý khi chuyển trang detail
+         * Created by: thanhdt - 10.05.2021
+         */
+        bookClicked(){
+            this.$emit('bookClicked');
         }
+    },
+    watch: {
+        dataSource: {
+            handler(val){
+                this.dataSourceX = val;
+            },
+            immediate: true
+        },
+        dataBook: {
+            handler(val){
+                this.dataBookX = val;
+            },
+            immediate: true,
+            deep: true
+        },
+        book: {
+            handler(val){
+                this.bookX = val;
+            },
+            immediate: true,
+            deep: true
+        },
+        isGenresFilter: {
+            handler(val){
+                this.isGenresFilterX = val;
+            },
+            immediate: true
+        },
     }
 }
 </script>

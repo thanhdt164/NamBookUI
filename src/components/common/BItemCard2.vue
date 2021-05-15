@@ -1,13 +1,16 @@
 <template>
-    <div class="item-card-two">
+    <div class="item-card-two" v-if="reload">
         <div class="left">
-            <div class="img">
-                <img src="https://books.google.com/books/publisher/content/images/frontcover/MXCRDQAAQBAJ?fife=w160-h230" alt="">
+            <div class="img" @click="bookClicked(dataBookItemX.book_id)">
+                <img :src="dataBookItemX.avatar" alt="">
             </div>
         </div>
         <div class="right">
-            <div class="title">The Barefoot Investor: The Only Money Guide You'll Ever Need</div>
-            <div class="author">John Wiley & Sons</div>
+            <div class="title" 
+                @click="bookClicked(dataBookItemX.book_id)" 
+                :title="dataBookItemX.book_nm"
+            >{{dataBookItemX.book_nm}}</div>
+            <div class="author">{{dataBookItemX.author_nm}}</div>
             <div class="summary">That's a bold claim, given there are already thousands of finance books on the shelves.
                 So what makes this one different?
                 Well, you won't be overwhelmed with a bunch of 'tips' ... or a strict budget (that youwon't follow).
@@ -15,7 +18,24 @@
                 This book will show you how to create an entire financial plan that is so simple you can sketch it on the back of a serviette ... and you'll be able to manage your money in 10 minutes a week.
             </div>
             <div class="bot">
-                <div class="star col-4">abcd</div>
+                <div class="star col-4">
+                    <div class="rating">
+                        <div class="rating-upper" style="width: 67%">
+                            <span>★</span>
+                            <span>★</span>
+                            <span>★</span>
+                            <span>★</span>
+                            <span>★</span>
+                        </div>
+                        <div class="rating-lower">
+                            <span>★</span>
+                            <span>★</span>
+                            <span>★</span>
+                            <span>★</span>
+                            <span>★</span>
+                        </div>
+                    </div>
+                </div>
                 <div class="flex">
                     <div class="price">₫806,698</div>
                     <div class="real-price">₫564,689</div>
@@ -28,6 +48,53 @@
 <script>
 export default {
     name: 'b-item-card-2',
+    data(){
+        return {
+            reload: true
+        }
+    },
+    props:{
+        dataBookItem: {
+            type: Object,
+            default: null
+        },
+        
+    },
+    methods: {
+        /**
+         * Hàm reload lại Similar books
+         * Created by: thanhdt - 11.05.2021
+         */
+        reloadSimilarBook(){
+            this.reload = false;
+            this.$nextTick(() => {
+                this.reload = true;
+            })
+        },
+        /**
+         * Hàm xử lý khi bấm vào avatar hoặc title book
+         * Created by: thanhdt - 09.05.2021
+         */
+        bookClicked(bookId){
+            // this.$router.push({ name: 'home'});
+            // setTimeout(() => {
+            //     this.$router.push({ name: 'book-detail', params: {bookId: bookId } })
+            // }, 0); 
+            this.$router.push({ name: 'book-detail', params: {bookId: bookId } })
+            this.$emit('bookClicked');
+        }
+
+    },
+    watch:{
+        dataBookItem:{
+            handler(val){
+                this.dataBookItemX = val;
+                this.reloadSimilarBook()
+            },
+            immediate: true,
+            deep: true
+        }
+    }
 }
 </script>
 

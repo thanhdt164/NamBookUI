@@ -1,7 +1,8 @@
 <template>
     <div class="box">
             <div class="header-box">
-                <div class="title">{{items[0].title}}</div>
+                <!-- <div class="title">{{items[0].title}}</div> -->
+                <div class="title">More like DTThanh</div>
                 <div class="see-more" v-if="!isGenresFilter">
                     <button type="button" class="btn btn-primary">See more</button>
                 </div>
@@ -9,8 +10,8 @@
             <div :class="[isGenresFilter?'isGenresFilter':'' ,'content-box']">
                 <b-item-card 
                     v-for="(item, index) in items" 
-                    v-show="index>0" 
-                    :key="item"  
+                    v-show="index>=0" 
+                    :key="index"  
                     :data="item"
                     :isGenresFilter="isGenresFilter"
                 ></b-item-card>
@@ -21,11 +22,13 @@
 <script>
 import BItemCard from '../common/BItemCard.vue'
 export default {
-    name: 'template',
+    name: 'b-box',
     data(){
         return {
 
         }
+    },
+    watch:{
     },
     components:{
         'b-item-card': BItemCard

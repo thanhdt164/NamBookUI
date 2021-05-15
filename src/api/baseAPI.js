@@ -11,7 +11,7 @@ export default class baseAPI {
      * @param {*} callback 
      */
     getAll(callback) {
-        http.get(`${this.name}`)
+        return http.get(`${this.name}`)
             .then(response => {
                 if (response.status && response.status == 200) {
                     callback ? callback(response.data) : true;

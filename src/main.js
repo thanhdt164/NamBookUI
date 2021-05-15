@@ -11,12 +11,23 @@ import 'bootstrap-vue/dist/bootstrap-vue.css'
 import axios from 'axios'
 import VueAxios from 'vue-axios'
 
+
 Vue.use(VueAxios, axios)
 Vue.use(BootstrapVue)
 Vue.use(IconsPlugin)
 Vue.use(VueRouter)
 Vue.use(Vuex)
+    /* Tích hợp fontAwesome Icon*/
+import { library } from '@fortawesome/fontawesome-svg-core'
+import { faUserSecret, faCaretDown, faBars, faUser, faThumbsUp, faTh, faEllipsisV, faInfoCircle, faPen, faCreditCard } from '@fortawesome/free-solid-svg-icons'
+import { faJs, faVuejs } from '@fortawesome/free-brands-svg-icons'
+import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
+library.add(faUserSecret, faCaretDown, faBars, faUser, faThumbsUp, faTh, faEllipsisV, faInfoCircle, faPen, faCreditCard, faJs, faVuejs)
+Vue.component('font-awesome-icon', FontAwesomeIcon)
+
+
 Vue.config.productionTip = false
+Vue.config.devtools = true
 
 new Vue({
     router,
