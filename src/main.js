@@ -13,6 +13,14 @@ import 'bootstrap-vue/dist/bootstrap-vue.css'
 import axios from 'axios'
 import VueAxios from 'vue-axios'
 
+import 'core-js/stable'
+import CoreuiVue from '@coreui/vue'
+import { iconsSet as icons } from './assets/icons/icons.js'
+import store from './store'
+
+Vue.config.performance = true
+Vue.use(CoreuiVue)
+Vue.prototype.$log = console.log.bind(console)
 
 Vue.use(VueAxios, axios)
 Vue.use(BootstrapVue)
@@ -33,5 +41,7 @@ Vue.config.devtools = true
 
 new Vue({
     router,
+    store,
+    icons,
     render: h => h(App)
 }).$mount('#app')
