@@ -46,7 +46,7 @@
           <CIcon name="cil-envelope-open"/>
         </CHeaderNavLink>
       </CHeaderNavItem>
-      <TheHeaderDropdownAccnt/>
+      <BDropdownHeader/>
     </CHeaderNav>
     <CSubheader class="px-3">
       <CBreadcrumbRouter class="border-0 mb-0"/>
@@ -55,12 +55,14 @@
 </template>
 
 <script>
-import TheHeaderDropdownAccnt from './TheHeaderDropdownAccnt'
+// import TheHeaderDropdownAccnt from './TheHeaderDropdownAccnt'
+import BDropdownHeader from '@/containers/BDropdownHeader.vue'
 
 export default {
   name: 'TheHeader',
   components: {
-    TheHeaderDropdownAccnt
+    // TheHeaderDropdownAccnt,
+    BDropdownHeader
   }
 }
 </script>

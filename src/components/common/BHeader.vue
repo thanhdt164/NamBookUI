@@ -5,35 +5,68 @@
         </div>
         <div class="search col-6">
             <input type="text" placeholder="Search">
-            <button type="button" class="btn btn-primary">
-                <i class="fas fa-search" style="width: 20px; height: 20px"></i>
+            <button type="button" class="btn btn-primary" >
+                <font-awesome-icon icon="search" class="icon-search"/>
             </button>
             
         </div>
         <div class="space col-2"></div>
         <div class="avatar col-2">
             <div class="toggle">
-                <font-awesome-icon icon="th" class="th"/>
+                <font-awesome-icon icon="shopping-cart" class="shopping-cart" @click="cartClicked"/>
+                <CBadge color="danger" class="mfs-auto" @click="cartClicked">{{2}}</CBadge>
             </div>
-            <div class="img">
-                <img src="https://lh3.googleusercontent.com/ogw/ADGmqu9HKP2aukmMBAbPzUiv7aM7E9WJ1sXtDvJr7iXm=s32-c-mo" alt="">
+            <div class="img" >
+                <!-- <img id="id-avatar" src="https://lh3.googleusercontent.com/ogw/ADGmqu9HKP2aukmMBAbPzUiv7aM7E9WJ1sXtDvJr7iXm=s32-c-mo" alt=""> -->
+                <BDropdownHeader :userInfo="userInfoX"/>
             </div>
         </div>
     </header>
 </template>
 
 <script>
+import BDropdownHeader from '@/containers/BDropdownHeader.vue'
 export default {
     name: 'b-header',
+    data(){
+        return {
+            userInfoX : null
+        }
+    },
+    components:{
+        BDropdownHeader
+    },
+    props:{
+        userInfo: {
+            type: Object,
+            default: null
+        }
+    },
+    watch:{
+        userInfo: {
+            handler(val){
+                this.userInfoX = val
+            },
+            immediate: true
+        }
+    },
+    methods: {
+        cartClicked(){
+            this.$emit("cardClicked")
+            this.$router.push({ name: 'shopping-cart'})
+        }
+    },
 }
 </script>
 
 <style scoped>
     .b-container{
-        height: 60px;
+        height: 68px;
         background-color: #F1F1F1;
         display: flex;
         align-items: center;
+        background-image: url("../../assets/header.png");
+        background-size: 214px;
     }
     .logo, .search, .space, .avatar{
         height: 100%;
@@ -58,21 +91,40 @@ export default {
         height: 32px;
         width: 60px;
         border-radius: 0px 4px 4px 0px;
+        line-height: 16px;
     }
     .avatar img{
         height: 32px;
         width: 32px;
         border-radius: 50%;
         position: relative;
-        left: 200px;
+        left: 175px;
     }
     .avatar .toggle{
         position: relative;
-        left: 185px;
+        left: 165px;
         font-size: 20px;
+        top: 56px;
+        z-index: 1000;
     }
-    .th{
-        font-size: 16px;
+    .shopping-cart{
+        font-size: 20px;
         color: #6D6D6D;
+        cursor: pointer;
+    }
+    .shopping-cart:active{
+        color: #333;
+    }
+    .badge{
+        position: absolute;
+        top: 0;
+        right: -3px;
+        font-size: 8px;
+        border-radius: 40%;
+        cursor: pointer;
+    }
+
+    .icon-search{
+        size: 16px;
     }
 </style>

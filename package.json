@@ -25,10 +25,13 @@
         "core-js": "^3.6.5",
         "devextreme": "^20.2.4",
         "devextreme-vue": "^20.2.4",
+        "md5": "^2.3.0",
         "mdbvue": "6.7.2",
         "vue": "^2.6.11",
         "vue-axios": "^3.2.4",
+        "vue-moment": "^4.1.0",
         "vue-router": "^3.5.1",
+        "vue-session": "^1.0.0",
         "vuex": "^3.6.2"
     },
     "devDependencies": {

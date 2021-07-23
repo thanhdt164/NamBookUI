@@ -1,12 +1,13 @@
 <template>
   <div>
     <WidgetsDropdown/>
+ <!-- Revenue and Spending -->
     <CCard>
       <CCardBody>
         <CRow>
           <CCol sm="5">
-            <h4 id="traffic" class="card-title mb-0">Traffic</h4>
-            <div class="small text-muted">November 2017</div>
+            <h4 id="traffic" class="card-title mb-0">Revenue and Spending (Khoản thu và chi)</h4>
+            <div class="small text-muted">This {{reportType=="Month"?'Month':'Year'}} ({{new Date()}})</div>
           </CCol>
           <CCol sm="7" class="d-none d-md-block">
             <CButton color="primary" class="float-right">
@@ -15,520 +16,338 @@
             <CButtonGroup class="float-right mr-3">
               <CButton
                 color="outline-secondary"
-                v-for="(value, key) in ['Day', 'Month', 'Year']"
+                v-for="(value, key) in ['Month', 'Year']"
                 :key="key"
                 class="mx-0"
-                :pressed="value === selected ? true : false"
-                @click="selected = value"
+                :pressed="value === reportType ? true : false"
+                @click="changeReportType(value)"
               >
                 {{value}}
               </CButton>
             </CButtonGroup>
           </CCol>
         </CRow>
-        <MainChartExample style="height:300px;margin-top:40px;"/>
+        <MainChartExample 
+          style="height:300px;margin-top:40px;"
+          :dataRevenue="dataRevenue"
+          :dataSpending="dataSpending"
+          :label="label"
+        ></MainChartExample>
       </CCardBody>
       <CCardFooter>
         <CRow class="text-center">
           <CCol md sm="12" class="mb-sm-2 mb-0">
-            <div class="text-muted">Visits</div>
-            <strong>29.703 Users (40%)</strong>
-            <CProgress
-              class="progress-xs mt-2"
-              :precision="1"
-              color="success"
-              :value="40"
-            />
-          </CCol>
-          <CCol md sm="12" class="mb-sm-2 mb-0 d-md-down-none">
-            <div class="text-muted">Unique</div>
-            <strong>24.093 Users (20%)</strong>
+            <div class="text-muted">ToTal Spending</div>
+            <strong>{{superTotalSpending}} Vnd ({{Math.round(100*superTotalSpending/(superTotalSpending+superTotalRevenue))}}%)</strong>
             <CProgress
               class="progress-xs mt-2"
               :precision="1"
               color="info"
-              :value="20"
-            />
-          </CCol>
-          <CCol md sm="12" class="mb-sm-2 mb-0">
-            <div class="text-muted">Pageviews</div>
-            <strong>78.706 Views (60%)</strong>
-            <CProgress
-              class="progress-xs mt-2"
-              :precision="1"
-              color="warning"
-              :value="60"
-            />
-          </CCol>
-          <CCol md sm="12" class="mb-sm-2 mb-0">
-            <div class="text-muted">New Users</div>
-            <strong>22.123 Users (80%)</strong>
-            <CProgress
-              class="progress-xs mt-2"
-              :precision="1"
-              color="danger"
-              :value="80"
+              :value="Math.round(100*superTotalSpending/(superTotalSpending+superTotalRevenue))"
             />
           </CCol>
           <CCol md sm="12" class="mb-sm-2 mb-0 d-md-down-none">
-            <div class="text-muted">Bounce Rate</div>
-            <strong>Average Rate (40.15%)</strong>
+            <div class="text-muted">Total Real Revenue</div>
+            <strong>{{superTotalRevenue}} Vnd ({{Math.round(100*superTotalRevenue/(superTotalSpending+superTotalRevenue))}}%)</strong>
             <CProgress
               class="progress-xs mt-2"
               :precision="1"
-              :value="40"
+              color="success"
+              :value="Math.round(100*superTotalRevenue/(superTotalSpending+superTotalRevenue))"
             />
           </CCol>
+          
         </CRow>
       </CCardFooter>
     </CCard>
-    <WidgetsBrand/>
-    <CRow>
-      <CCol md="12">
-        <CCard>
-          <CCardHeader>
-            Traffic &amp; Sales
-          </CCardHeader>
-          <CCardBody>
+<!-- TopBookSold -->
+    <CCard>
+      <CCardHeader>
+        <CRow>
+          <CCol md="8">
+            <h3>Top books sold</h3>
+          </CCol>
+          <CCol md="3">
             <CRow>
-              <CCol sm="12" lg="6">
-                <CRow>
-                  <CCol sm="6">
-                    <CCallout color="info">
-                      <small class="text-muted">New Clients</small><br>
-                      <strong class="h4">9,123</strong>
-                    </CCallout>
-                  </CCol>
-                  <CCol sm="6">
-                    <CCallout color="danger">
-                      <small class="text-muted">Recurring Clients</small><br>
-                      <strong class="h4">22,643</strong>
-                    </CCallout>
-                  </CCol>
-                </CRow>
-                <hr class="mt-0">
-                <div class="progress-group mb-4">
-                  <div class="progress-group-prepend">
-                    <span class="progress-group-text">
-                      Monday
-                    </span>
-                  </div>
-                  <div class="progress-group-bars">
-                    <CProgress
-                      class="progress-xs"
-                      color="info"
-                      :value="34"
-                    />
-                    <CProgress
-                      class="progress-xs"
-                      color="danger"
-                      :value="78"
-                    />
-                  </div>
-                </div>
-                <div class="progress-group mb-4">
-                  <div class="progress-group-prepend">
-                    <span class="progress-group-text">
-                      Tuesday
-                    </span>
-                  </div>
-                  <div class="progress-group-bars">
-                    <CProgress
-                      class="progress-xs"
-                      :value="56"
-                      color="info"
-                    />
-                    <CProgress
-                      class="progress-xs"
-                      :value="94"
-                      color="danger"
-                    />
-                  </div>
-                </div>
-                <div class="progress-group mb-4">
-                  <div class="progress-group-prepend">
-                    <span class="progress-group-text">
-                      Wednesday
-                    </span>
-                  </div>
-                  <div class="progress-group-bars">
-                    <CProgress
-                      class="progress-xs"
-                      :value="12"
-                      color="info"
-                    />
-                    <CProgress
-                      class="progress-xs"
-                      :value="67"
-                      color="danger"
-                    />
-                  </div>
-                </div>
-                <div class="progress-group mb-4">
-                  <div class="progress-group-prepend">
-                    <span class="progress-group-text">
-                      Thursday
-                    </span>
-                  </div>
-                  <div class="progress-group-bars">
-                    <CProgress
-                      class="progress-xs"
-                      :value="43"
-                      color="info"
-                    />
-                    <CProgress
-                      class="progress-xs"
-                      :value="91"
-                      color="danger"
-                    />
-                  </div>
-                </div>
-                <div class="progress-group mb-4">
-                  <div class="progress-group-prepend">
-                    <span class="progress-group-text">
-                      Friday
-                    </span>
-                  </div>
-                  <div class="progress-group-bars">
-                    <CProgress
-                      class="progress-xs"
-                      :value="22"
-                      color="info"
-                    />
-                    <CProgress
-                      class="progress-xs"
-                      :value="73"
-                      color="danger"
-                    />
-                  </div>
-                </div>
-                <div class="progress-group mb-4">
-                  <div class="progress-group-prepend">
-                    <span class="progress-group-text">
-                      Saturday
-                    </span>
-                  </div>
-                  <div class="progress-group-bars">
-                    <CProgress
-                      class="progress-xs"
-                      :value="53"
-                      color="info"
-                    />
-                    <CProgress
-                      class="progress-xs"
-                      :value="82"
-                      color="danger"
-                    />
-                  </div>
-                </div>
-                <div class="progress-group mb-4">
-                  <div class="progress-group-prepend">
-                    <span class="progress-group-text">
-                      Sunday
-                    </span>
-                  </div>
-                  <div class="progress-group-bars">
-                    <CProgress
-                      class="progress-xs"
-                      :value="9"
-                      color="info"
-                    />
-                    <CProgress
-                      class="progress-xs"
-                      :value="69"
-                      color="danger"
-                    />
-                  </div>
-                </div>
-                <div class="legend text-center">
-                  <small>
-                    <sup><CBadge shape="pill" color="info">&nbsp;</CBadge></sup>
-                    New clients
-                    &nbsp;&nbsp;
-                    <sup><CBadge shape="pill" color="danger">&nbsp;</CBadge></sup>
-                    Recurring clients
-                  </small>
-                </div>
-              </CCol>
-              <CCol sm="12" lg="6">
-                <CRow>
-                  <CCol sm="6">
-                    <CCallout color="warning">
-                      <small class="text-muted">Pageviews</small><br>
-                      <strong class="h4">78,623</strong>
-                    </CCallout>
-                  </CCol>
-                  <CCol sm="6">
-                    <CCallout color="success">
-                      <small class="text-muted">Organic</small><br>
-                      <strong class="h4">49,123</strong>
-                    </CCallout>
-                  </CCol>
-                </CRow>
-                <hr class="mt-0">
-                <ul class="horizontal-bars type-2">
-                  <div class="progress-group">
-                    <div class="progress-group-header">
-                      <CIcon name="cil-user" class="progress-group-icon"/>
-                      <span class="title">Male</span>
-                      <span class="ml-auto font-weight-bold">43%</span>
-                    </div>
-                    <div class="progress-group-bars">
-                      <CProgress
-                        class="progress-xs"
-                        :value="43"
-                        color="warning"
-                      />
-                    </div>
-                  </div>
-                  <div class="progress-group mb-5">
-                    <div class="progress-group-header">
-                      <CIcon name="cil-user-female" class="progress-group-icon"/>
-                      <span class="title">Female</span>
-                      <span class="ml-auto font-weight-bold">37%</span>
-                    </div>
-                    <div class="progress-group-bars">
-                      <CProgress
-                        class="progress-xs"
-                        :value="37"
-                        color="warning"
-                      />
-                    </div>
-                  </div>
-                  <div class="progress-group">
-                    <div class="progress-group-header">
-                      <CIcon name="cil-globe-alt" class="progress-group-icon"/>
-                      <span class="title">Organic Search</span>
-                      <span class="ml-auto font-weight-bold">
-                        191,235 <span class="text-muted small">(56%)</span>
-                      </span>
-                    </div>
-                    <div class="progress-group-bars">
-                      <CProgress
-                        class="progress-xs"
-                        :value="56"
-                        color="success"
-                      />
-                    </div>
-                  </div>
-                  <div class="progress-group">
-                    <div class="progress-group-header">
-                      <CIcon
-                        name="cib-facebook"
-                        height="17"
-                        class="progress-group-icon"
-                      />
-                      <span class="title">Facebook</span>
-                      <span class="ml-auto font-weight-bold">
-                        51,223 <span class="text-muted small">(15%)</span>
-                      </span>
-                    </div>
-                    <div class="progress-group-bars">
-                      <CProgress
-                        class="progress-xs"
-                        :value="15"
-                        color="success"
-                      />
-                    </div>
-                  </div>
-                  <div class="progress-group">
-                    <div class="progress-group-header">
-                      <CIcon
-                        name="cib-twitter"
-                        height="17"
-                        class="progress-group-icon"
-                      />
-                      <span class="title">Twitter</span>
-                      <span class="ml-auto font-weight-bold">
-                        37,564 <span class="text-muted small">(11%)</span>
-                      </span>
-                    </div>
-                    <div class="progress-group-bars">
-                      <CProgress
-                        class="progress-xs"
-                        :value="11"
-                        color="success"
-                      />
-                    </div>
-                  </div>
-                  <div class="progress-group">
-                    <div class="progress-group-header">
-                      <CIcon
-                        name="cib-linkedin"
-                        height="17"
-                        class="progress-group-icon"
-                      />
-                      <span class="title">LinkedIn</span>
-                      <span class="ml-auto font-weight-bold">
-                        27,319 <span class="text-muted small">&nbsp;(8%)</span>
-                      </span>
-                    </div>
-                    <div class="progress-group-bars">
-                      <CProgress
-                        class="progress-xs"
-                        :value="8"
-                        color="success"
-                      />
-                    </div>
-                  </div>
-                  <div class="divider text-center">
-                    <CButton color="link" size="sm" class="text-muted">
-                      <CIcon name="cil-options"/>
-                    </CButton>
-                  </div>
-                </ul>
+              <CCol  >
+                <CInput
+                  label="From Date"
+                  type="date"
+                  horizontal
+                  v-model="paramTopBookSold.fromTime"
+                />
               </CCol>
             </CRow>
-            <br/>
-            <CDataTable
-              class="mb-0 table-outline"
-              hover
-              :items="tableItems"
-              :fields="tableFields"
-              head-color="light"
-              no-sorting
+            <CRow>
+              <CCol >
+                <CInput
+                  label="To Date"
+                  type="date"
+                  horizontal
+                  v-model="paramTopBookSold.toTime"
+                />
+              </CCol>
+            </CRow>
+          </CCol>
+          <CCol col="1" class="mb-3 mb-xl-0">
+            <CButton block color="primary" @click="getDataTopBookSold">Submit</CButton>
+          </CCol>
+        </CRow>
+      </CCardHeader>
+      <CCardBody>
+        <!-- Row 1 -->
+        <CRow v-for="(book, id) in dataTopBookSold" :key="id" v-model="dataTopBookSold">
+          <CCol sm="12" lg="12">
+            <CWidgetProgress
+              :header="book.book_nm"
+              text="G. Wakeling"
+              footer="Selective Entertainment LLC"
+              color="gradient-info"
             >
-              <td slot="avatar" class="text-center" slot-scope="{item}">
-                <div class="c-avatar">
-                  <img :src="item.avatar.url" class="c-avatar-img" alt="">
-                  <span
-                    class="c-avatar-status"
-                    :class="`bg-${item.avatar.status || 'secondary'}`"
-                  ></span>
-                </div>
-              </td>
-              <td slot="user" slot-scope="{item}">
-                <div>{{item.user.name}}</div>
-                <div class="small text-muted">
-                  <span>
-                    <template v-if="item.user.new">New</template>
-                    <template v-else>Recurring</template>
-                  </span> | Registered: {{item.user.registered}}
-                </div>
-              </td>
-              <td
-                slot="country"
-                slot-scope="{item}"
-                class="text-center"
-              >
-                <CIcon
-                  :name="item.country.flag"
-                  height="25"
-                />
-              </td>
-              <td slot="usage" slot-scope="{item}">
-                <div class="clearfix">
-                  <div class="float-left">
-                    <strong>{{item.usage.value}}%</strong>
-                  </div>
-                  <div class="float-right">
-                    <small class="text-muted">{{item.usage.period}}</small>
-                  </div>
-                </div>
-                <CProgress
-                  class="progress-xs"
-                  v-model="item.usage.value"
-                  :color="color(item.usage.value)"
-                />
-              </td>
-              <td
-                slot="payment"
-                slot-scope="{item}"
-                class="text-center"
-              >
-                <CIcon
-                  :name="item.payment.icon"
-                  height="25"
-                />
-              </td>
-              <td slot="activity" slot-scope="{item}">
-                <div class="small text-muted">Last login</div>
-                <strong>{{item.activity}}</strong>
-              </td>
-            </CDataTable>
-          </CCardBody>
-        </CCard>
-      </CCol>
-    </CRow>
+              <CRow>
+                <CCol sm="2" lg="2" class="avatar">
+                  <img :src="book.avatar" alt="">
+                </CCol>
+                <CCol sm="10" lg="10">
+                  <CRow>
+                    <CCol col="12" sm="12" lg="6">
+                      <CWidgetDropdown
+                        :header="`${120} Views - ${15} Comments`"
+                        text="."
+                        color="gradient-success"
+                        inverse
+                      />
+                      <CWidgetProgress
+                        :header="`REVENUE : ${formatCurrency(book.total_revenue)}`"
+                        :text="`IMPORT COST : ${formatCurrency(dataBookImportX[id].total_spending)}`"
+                        color="gradient-warning"
+                        inverse
+                        :value="67.2"
+                      />
+                    </CCol>
+                    <CCol col="12" sm="12" lg="6">
+                      <CWidgetProgressIcon
+                        :header="`Sold Count : ${book.sold_count}`"
+                        :text="`Import Count : ${dataBookImportX[id].import_count}`"
+                        color="gradient-primary"
+                        inverse
+                      >
+                        <CIcon name="cil-chartPie" height="36"/>
+                      </CWidgetProgressIcon>
+                    </CCol>
+                  
+                    <CCol sm="12" lg="6">
+                    </CCol>
+                    <CCol col="12" sm="12" lg="6">
+                    </CCol>
+                  </CRow> 
+                </CCol>
+              </CRow>
+            </CWidgetProgress>
+          </CCol>
+        </CRow>
+
+      </CCardBody>
+    </CCard>  
+
   </div>
 </template>
 
 <script>
 import MainChartExample from './charts/MainChartExample'
 import WidgetsDropdown from './widgets/WidgetsDropdown'
-import WidgetsBrand from './widgets/WidgetsBrand'
+import dashboardAPI from '@/api/dashboardAPI.js'
+import moment from 'moment'
+// import WidgetsBrand from './widgets/WidgetsBrand'
+// import { CChartLineSimple, CChartBarSimple } from '@/views/charts/index.js'
 
 export default {
   name: 'Dashboard',
   components: {
     MainChartExample,
     WidgetsDropdown,
-    WidgetsBrand
+    // WidgetsBrand,
+    // CChartLineSimple,
+    // CChartBarSimple
   },
   data () {
     return {
-      selected: 'Month',
-      tableItems: [
-        {
-          avatar: { url: 'img/avatars/1.jpg', status: 'success' },
-          user: { name: 'Yiorgos Avraamu', new: true, registered: 'Jan 1, 2015' },
-          country: { name: 'USA', flag: 'cif-us' },
-          usage: { value: 50, period: 'Jun 11, 2015 - Jul 10, 2015' },
-          payment: { name: 'Mastercard', icon: 'cib-cc-mastercard' },
-          activity: '10 sec ago'
-        },
-        {
-          avatar: { url: 'img/avatars/2.jpg', status: 'danger' },
-          user: { name: 'Avram Tarasios', new: false, registered: 'Jan 1, 2015' },
-          country: { name: 'Brazil', flag: 'cif-br' },
-          usage: { value: 22, period: 'Jun 11, 2015 - Jul 10, 2015' },
-          payment: { name: 'Visa', icon: 'cib-cc-visa' },
-          activity: '5 minutes ago'
-        },
-        {
-          avatar: { url: 'img/avatars/3.jpg', status: 'warning' },
-          user: { name: 'Quintin Ed', new: true, registered: 'Jan 1, 2015' },
-          country: { name: 'India', flag: 'cif-in' },
-          usage: { value: 74, period: 'Jun 11, 2015 - Jul 10, 2015' },
-          payment: { name: 'Stripe', icon: 'cib-stripe' },
-          activity: '1 hour ago'
-        },
-        {
-          avatar: { url: 'img/avatars/4.jpg', status: '' },
-          user: { name: 'Enéas Kwadwo', new: true, registered: 'Jan 1, 2015' },
-          country: { name: 'France', flag: 'cif-fr' },
-          usage: { value: 98, period: 'Jun 11, 2015 - Jul 10, 2015' },
-          payment: { name: 'PayPal', icon: 'cib-paypal' },
-          activity: 'Last month'
-        },
-        {
-          avatar: { url: 'img/avatars/5.jpg', status: 'success' },
-          user: { name: 'Agapetus Tadeáš', new: true, registered: 'Jan 1, 2015' },
-          country: { name: 'Spain', flag: 'cif-es' },
-          usage: { value: 22, period: 'Jun 11, 2015 - Jul 10, 2015' },
-          payment: { name: 'Google Wallet', icon: 'cib-google-pay' },
-          activity: 'Last week'
-        },
-        {
-          avatar: { url: 'img/avatars/6.jpg', status: 'danger' },
-          user: { name: 'Friderik Dávid', new: true, registered: 'Jan 1, 2015' },
-          country: { name: 'Poland', flag: 'cif-pl' },
-          usage: { value: 43, period: 'Jun 11, 2015 - Jul 10, 2015' },
-          payment: { name: 'Amex', icon: 'cib-cc-amex' },
-          activity: 'Last week'
-        }
-      ],
-      tableFields: [
-        { key: 'avatar', label: '', _classes: 'text-center' },
-        { key: 'user' },
-        { key: 'country', _classes: 'text-center' },
-        { key: 'usage' },
-        { key: 'payment', label: 'Payment method', _classes: 'text-center' },
-        { key: 'activity' },
-      ]
+      dataTopBookSold : null,
+      paramTopBookSold: {
+        fromTime: '2021-05-01',
+        toTime: '2021-06-30',
+        top: 5
+      },
+      dataBookImport: null,
+      dataBookImportX: [],
+      paramBookImport: {
+        fromTime: '2021-05-01',
+        toTime: '2021-06-30'
+      },
+      reportType: 'Month',
+      dataRevenue: [], 
+      dataSpending: [],
+      label: [],
+      superTotalSpending: 0,
+      superTotalRevenue: 0,
+
     }
   },
+  created(){
+    this.getDataTopBookSold();
+    this.getDataRevenueAndSpending();
+  },
   methods: {
+    /**
+     * Hàm format tiền tệ
+     */
+    formatCurrency(val){
+        return Intl.NumberFormat('vi-VN', {
+            style: 'currency',
+            currency: 'VND',
+        }).format(val)
+    },
+
+    changeReportType(value){
+      this.reportType = value;
+      this.getDataRevenueAndSpending();
+    },
+    getDataTopBookSold(){
+      if (this.paramTopBookSold.fromTime <= this.paramTopBookSold.toTime){
+        this.paramBookImport.fromTime = this.paramTopBookSold.fromTime;
+        this.paramBookImport.toTime = this.paramTopBookSold.toTime;
+        dashboardAPI.getTopBookSold((res)=>{this.dataTopBookSold =res},this.paramTopBookSold.fromTime, this.paramTopBookSold.toTime, this.paramTopBookSold.top);
+        dashboardAPI.getBookImport((res)=>{this.dataBookImport = res; this.setDataBookImportX()},this.paramBookImport.fromTime, this.paramBookImport.toTime);
+      }
+    },
+    /**
+     * Hàm xử lý dữ liệu cho dataBookImportX
+     * Created by: thanhdt - 22.05.2021
+     */
+    setDataBookImportX(){
+      var me = this;
+      let import_book_ids = me.dataBookImport.map(el => el.book_id);
+      me.dataTopBookSold.forEach(el => {
+        if(import_book_ids.includes(el.book_id)){
+          me.dataBookImport.forEach(it => {
+            if(it.book_id == el.book_id){
+              me.dataBookImportX.push({import_price: it.import_price, import_count: it.import_count, total_spending: it.total_spending})
+            }
+          })
+        }else{
+          me.dataBookImportX.push({import_price: 0, import_count: 0, total_spending: 0})
+        }
+      })
+    },
+    getDataRevenueAndSpending(){
+      if(this.reportType == 'Month'){
+        this.getReportByMonth();
+      }else if(this.reportType == 'Year'){
+        this.getReportByYear();
+      }
+    },
+    /**
+     * Hàm lấy giá trị fromTime, toTime của tháng hiện tại
+     * Created by: thanhdt - 22.05.2021
+     */
+    getReportByMonth(){
+      let startOfMonth = moment().startOf('month').toDate();
+      let endOfMonth = moment().endOf('month').toDate();
+      let monthText = new Intl.DateTimeFormat('en', { month: 'short' }).format(endOfMonth);
+      /* custom Lable */
+      this.label = []
+      let i
+      for (i = 1; i<=endOfMonth.getDate(); i++){
+        this.label.push(`${monthText} ${i}`)
+      }
+      /* Gọi api lấy dữ liệu */
+      let fromDate = this.formatDate(startOfMonth, 3);
+      let toDate = this.formatDate(endOfMonth, 3);
+      dashboardAPI.getSpending((res) => {this.dataSpending = res}, fromDate, toDate, 1);
+      dashboardAPI.getRevenue((res) => {this.dataRevenue = res}, fromDate, toDate, 1);
+      /* Convert lại dữ liệu trước khi truyền lên chart */
+      setTimeout(() => {
+        this.convertDataSpendindAndRevenue();
+      }, 250); 
+    },
+    /**
+     * Hàm lấy giá trị fromTime, toTime của tháng hiện tại
+     * Created by: thanhdt - 22.05.2021
+     */
+    getReportByYear(){
+      let startOfYear = moment().startOf('year').toDate();
+      let endOfYear = moment().endOf('year').toDate();
+      // let yearText = new Intl.DateTimeFormat('en', { year: 'numeric' }).format(endOfYear);
+      /* custom Lable */
+      this.label = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'July', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
+      /* Gọi api lấy dữ liệu */
+      let fromDate = this.formatDate(startOfYear, 3);
+      let toDate = this.formatDate(endOfYear, 3);
+      dashboardAPI.getSpending((res) => {this.dataSpending = res}, fromDate, toDate, 2);
+      dashboardAPI.getRevenue((res) => {this.dataRevenue = res}, fromDate, toDate, 2);
+      /* Convert lại dữ liệu trước khi truyền lên chart */
+      setTimeout(() => {
+        this.convertDataSpendindAndRevenue();
+      }, 200); 
+    },
+
+    convertDataSpendindAndRevenue(){
+      var me = this;
+      if(this.reportType == 'Month'){
+        let length = moment().endOf('month').toDate().getDate();
+        let tempSpend = this.dataSpending.map(el => el.Day);
+        let tempRevenue = this.dataRevenue.map(el => el.Day);
+
+        let i
+        for ( i = 1; i<=length; i++){
+          if (!tempSpend.includes(i)){
+            this.dataSpending.push({Day: i, TotalSpending: 0})
+          }
+          if (!tempRevenue.includes(i)){
+            this.dataRevenue.push({Day: i, TotalRealRevenue: 0, TotalRevenue: 0})
+          }
+        }
+        this.dataSpending.sort((a, b) => {return a.Day - b.Day})
+        this.dataRevenue.sort((a, b) => {return a.Day - b.Day})
+      }else{
+        let tempSpend = this.dataSpending.map(el => el.Month);
+        let tempRevenue = this.dataRevenue.map(el => el.Month);
+
+        this.label.forEach(el => {
+          if (!tempSpend.includes(el)){
+            this.dataSpending.push({Month: el, TotalSpending: 0})
+          }
+          if (!tempRevenue.includes(el)){
+            this.dataRevenue.push({Month: el, TotalRealRevenue: 0, TotalRevenue: 0})
+          }
+        })
+        this.dataSpending.sort((a, b) => {return me.label.indexOf(a.Month) - me.label.indexOf(b.Month)})
+        this.dataRevenue.sort((a, b) => {return me.label.indexOf(a.Month) - me.label.indexOf(b.Month)})
+      }
+
+      /* Gán giá trị cho superTotalSpending vs superTotalRevenue */
+      me.superTotalSpending = parseFloat(me.dataSpending.reduce(function(prev, cur) {
+        return prev + cur.TotalSpending;
+      }, 0).toFixed(3));
+      me.superTotalRevenue = parseFloat(me.dataRevenue.reduce(function(prev, cur) {
+        return prev + cur.TotalRealRevenue;
+      }, 0).toFixed(3));
+    },
+    formatDate(date, type){
+            date = new Date(date)
+            let ye = new Intl.DateTimeFormat('en', { year: 'numeric' }).format(date)
+            let mo = new Intl.DateTimeFormat('en', { month: 'short' }).format(date)
+            let da = new Intl.DateTimeFormat('en', { day: '2-digit' }).format(date)
+            if (type == 1) {
+                return `${mo} ${ye}`
+            }
+            if (type == 2) {
+                return `${mo} ${da}, ${ye}`
+            }
+            if(type == 3){
+              return `${ye}-${mo}-${da}`
+            }
+    },
     color (value) {
       let $color
       if (value <= 25) {
@@ -545,3 +364,11 @@ export default {
   }
 }
 </script>
+
+<style scoped>
+  .avatar{
+    display: flex;
+    justify-content: space-around;
+  }
+  
+</style>

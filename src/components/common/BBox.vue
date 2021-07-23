@@ -1,8 +1,8 @@
 <template>
     <div class="box">
             <div class="header-box">
-                <!-- <div class="title">{{items[0].title}}</div> -->
-                <div class="title">More like DTThanh</div>
+                <div class="title">More like {{items[0].genres_nm}}</div>
+                <!-- <div class="title">More like DTThanh</div> -->
                 <div class="see-more" v-if="!isGenresFilter">
                     <button type="button" class="btn btn-primary">See more</button>
                 </div>
@@ -10,10 +10,11 @@
             <div :class="[isGenresFilter?'isGenresFilter':'' ,'content-box']">
                 <b-item-card 
                     v-for="(item, index) in items" 
-                    v-show="index>=0" 
+                    v-show="index>0" 
                     :key="index"  
                     :data="item"
                     :isGenresFilter="isGenresFilter"
+                    @paymentHome="paymentHome"
                 ></b-item-card>
             </div>
     </div>
@@ -42,7 +43,12 @@ export default {
             type: Boolean,
             default: false
         }
-    }
+    },
+    methods: {
+        paymentHome(book){
+            this.$emit("paymentHome", book)
+        }
+    },
 
 }
 </script>
@@ -62,6 +68,7 @@ export default {
         font-size: 28px;
         font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
         color: #333333;
+        color: #fff;
     }
     .header-box button{
         background-color: #039be5;

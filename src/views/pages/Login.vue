@@ -12,6 +12,7 @@
                   <CInput
                     placeholder="Username"
                     autocomplete="username email"
+                    v-model="userName"
                   >
                     <template #prepend-content><CIcon name="cil-user"/></template>
                   </CInput>
@@ -19,12 +20,13 @@
                     placeholder="Password"
                     type="password"
                     autocomplete="curent-password"
+                    v-model="password"
                   >
                     <template #prepend-content><CIcon name="cil-lock-locked"/></template>
                   </CInput>
                   <CRow>
                     <CCol col="6" class="text-left">
-                      <CButton color="primary" class="px-4">Login</CButton>
+                      <CButton color="primary" class="px-4" @click="onLogin">Login</CButton>
                     </CCol>
                     <CCol col="6" class="text-right">
                       <CButton color="link" class="px-0">Forgot password?</CButton>
@@ -60,7 +62,36 @@
 </template>
 
 <script>
+import authenticateAPI from '@/api/authenticateAPI.js'
+import moment from 'moment'
 export default {
-  name: 'Login'
+  name: 'Login',
+  data(){
+    return {
+      userName: "",
+      password: ""
+    }
+  },
+  methods: {
+    /**
+     * Hàm login
+     * Created by: thanhdt 19.05.2021
+     */
+    onLogin(){
+      var md5 = require('md5');
+      if(this.userName != "" && this.password != ""){
+        let passwordMd5 = md5(this.password);
+        authenticateAPI.authenticate((res) => {
+          if(res && res.count > 0){
+            localStorage.setItem('acc-name', this.userName);
+            localStorage.setItem('exp-time', new Date(moment().add(300, 'minutes')))
+            this.$router.push({ name: 'home'})
+          }
+        }, this.userName, passwordMd5)
+        
+        
+      }
+    }
+  },
 }
 </script>

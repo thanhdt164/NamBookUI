@@ -1,6 +1,7 @@
 import Vue from 'vue'
 import Home from '@/components/pages/Home.vue'
 import BookDetail from '@/components/pages/BookDetail.vue'
+import ShoppingCart from '@/components/pages/BShoppingCart.vue'
 // Containers
 const TheContainer = () =>
     import ('@/containers/TheContainer')
@@ -90,10 +91,30 @@ const Register = () =>
     import ('@/views/pages/Register')
 
 // Users
-const Users = () =>
-    import ('@/views/users/Users')
+// const Users = () =>
+//     import ('@/views/users/Users')
 const User = () =>
     import ('@/views/users/User')
+
+
+const Books = () =>
+    import ('@/components/pages/Manager_books')
+const Payloads = () =>
+    import ('@/components/pages/Manager_payloads')
+const Orders = () =>
+    import ('@/components/pages/Manager_orders')
+const DBUsers = () =>
+    import ('@/components/pages/Dashboard_users')
+const Storages = () =>
+    import ('@/components/pages/Manager_storages')
+const Authors = () =>
+    import ('@/components/pages/Manager_authors')
+const Genres = () =>
+    import ('@/components/pages/Manager_genres')
+const TransactionHistories = () =>
+    import ('@/components/pages/Manager_transaction_histories')
+const Publishers = () =>
+    import ('@/components/pages/Manager_publishers')
 
 import Router from 'vue-router'
 
@@ -104,6 +125,11 @@ const router = new Router({
     scrollBehavior: () => ({ y: 0 }),
     linkActiveClass: 'active',
     routes: [{
+            path: '',
+            name: 'empty',
+            redirect: 'pages/login'
+        },
+        {
             path: '/DTTBook/home',
             name: 'home',
             component: Home,
@@ -128,13 +154,18 @@ const router = new Router({
             name: 'new-arrivals',
             component: Home,
         },
+        {
+            path: '/DTTBook/shopping-cart',
+            name: 'shopping-cart',
+            component: ShoppingCart,
+        },
 
 
 
         {
             path: '/',
             redirect: '/dashboard',
-            name: 'Home',
+            // name: 'Home',
             component: TheContainer,
             children: [{
                     path: 'dashboard',
@@ -161,6 +192,54 @@ const router = new Router({
                     ]
                 },
                 {
+                    path: 'manager',
+                    name: 'manager',
+                    component: {
+                        render(c) { return c('router-view') }
+                    },
+                    children: [{
+                            path: 'Books',
+                            name: 'Books',
+                            component: Books
+                        },
+                        {
+                            path: 'Payloads',
+                            name: 'Payloads',
+                            component: Payloads
+                        },
+                        {
+                            path: 'Orders',
+                            name: 'Orders',
+                            component: Orders
+                        },
+                        {
+                            path: 'Storages',
+                            name: 'Storages',
+                            component: Storages
+                        },
+                        {
+                            path: 'Authors',
+                            name: 'Authors',
+                            component: Authors
+                        },
+                        {
+                            path: 'Genres',
+                            name: 'Genres',
+                            component: Genres
+                        },
+                        {
+                            path: 'Transaction-Histories',
+                            name: 'TransactionHistories',
+                            component: TransactionHistories
+                        },
+                        {
+                            path: 'Publishers',
+                            name: 'Publishers',
+                            component: Publishers
+                        }
+                    ]
+                },
+                {
                     path: 'charts',
                     name: 'Charts',
                     component: Charts
@@ -183,7 +262,7 @@ const router = new Router({
                     children: [{
                             path: '',
                             name: 'Users',
-                            component: Users
+                            component: DBUsers
                         },
                         {
                             path: ':id',

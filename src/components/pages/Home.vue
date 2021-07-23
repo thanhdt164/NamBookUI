@@ -1,6 +1,6 @@
 <template >
     <div class="main-container">
-            <b-header/>
+            <b-header :userInfo="userInfo"/>
             <b-menu 
               :state="state"
               @changeState="changeState"
@@ -18,12 +18,14 @@ import BHeader from '@/components/common/BHeader.vue'
 import BMenu from '@/components/common/BMenu.vue'
 import BContainer from '@/components/common/BContainer.vue'
 import bookAPI from '@/api/bookAPI.js'
+import userAPI from '@/api/userAPI.js'
 
 export default {
     name: 'home',
     data() {
         return{
             state: 'home',
+            userInfo: null,
             dataSource: [],
             /* Trang hiển thị là lọc theo genres không */
             isGenresFilter : false,
@@ -36,14 +38,12 @@ export default {
         BHeader,
         BMenu
     },
-    watch:{
-        isGenresFilter:{
-            handler(val){
-                console.log(val)
-            }
-        }
-    },
     created(){
+        /* Lấy thông tin người dùng */
+        let accountName = localStorage.getItem('acc-name')
+        userAPI.getUserInfo(accountName, (res)=>{
+            this.userInfo = res
+        })
         this.getDataSource();
     },
     methods: {
@@ -120,15 +120,25 @@ export default {
          */
         getBookByGenres(){
             this.isGenresFilter = true;
-            bookAPI.getHomeBooks((res) => {
-                this.dataSource = res;
+            let genresId = parseInt(this.$route.params.genresId);
+            bookAPI.getBooksByGenresId2(genresId, (res) => {
+                this.dataSource = [res];
             });
         }
     }
 }
 </script>
 <style>
-* { margin: 0 !important; }
+/* * { margin: 0 !important; } */
+.dropdown-menu{
+    position: absolute !important;
+}
+.btn{
+    /* color: #fff !important; */
+}
+.progress{
+    height: 0.5rem !important;
+}
 /* Style for star-rating */
 .rating {
   unicode-bidi: bidi-override;

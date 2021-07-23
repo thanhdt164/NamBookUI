@@ -15,7 +15,13 @@
           v-model="bookX"
           @bookClicked="bookClicked"
         ></b-content>
-       
+        <!-- Trang shopping cart -->
+        <b-content
+          v-if="dataShoppingCartX"
+          v-model="dataShoppingCartX"
+          :isShoppingCart="isShoppingCartX"
+          :dataShoppingCart="dataShoppingCartX"
+        ></b-content>
         <b-footer/>
     </div>
 </template>
@@ -33,7 +39,9 @@ export default {
             stateX: null,
             dataBookX: null,
             bookX: null,
-            isGenresFilterX: null
+            isGenresFilterX: null,
+            dataShoppingCartX: null,
+            isShoppingCartX: null
         }
     },
     components: {
@@ -54,6 +62,14 @@ export default {
             default: null
         },
         isGenresFilter: {
+            type : Boolean,
+            default: false
+        },
+        dataShoppingCart: {
+            type: [Object, Array],
+            defalt: () => []
+        },
+        isShoppingCart:{
             type : Boolean,
             default: false
         }
@@ -93,6 +109,18 @@ export default {
         isGenresFilter: {
             handler(val){
                 this.isGenresFilterX = val;
+            },
+            immediate: true
+        },
+        dataShoppingCart: {
+            handler(val) {
+                this.dataShoppingCartX = val
+            },
+            immediate: true
+        },
+         isShoppingCart: {
+            handler(val){
+                this.isShoppingCartX = val;
             },
             immediate: true
         },

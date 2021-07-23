@@ -1,22 +1,22 @@
 <template>
     <div :class="[isGenresFilter?'isGenresFilter':'' ,'item-card']">
-        <div class="img" @click="bookClicked(data.book_id)">
-            <img :src="`${data.avatar}`" alt="">
+        <div class="img" @click="bookClicked(dataX.book_id)">
+            <img :src="`${dataX.avatar}`" alt="">
         </div>
         <div class="content">
-            <div class="title" @click="bookClicked(data.book_id)">
-                <a>{{data.book_nm}}</a>   
+            <div class="title" @click="bookClicked(dataX.book_id)">
+                <a>{{dataX.book_nm}}</a>   
             </div>
             <div class="author">
-                <a href="">{{data.author_nm}}</a>
+                <a href="">{{dataX.author_nm}}</a>
             </div>
             <div class="price">
-                {{data.price}}đ
+                {{formatCurrency(dataX.price)}}
             </div>
             <div class="rate">
                 <div class="star col-6">
                     <div class="rating">
-                        <div class="rating-upper" style="width: 82%">
+                        <div class="rating-upper" :style="`width: ${dataX.rate_point*20}%`">
                             <span>★</span>
                             <span>★</span>
                             <span>★</span>
@@ -32,7 +32,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="real-price col-6" >{{data.price * (1-data.sale)}}đ</div>
+                <div class="real-price col-6" @click="realPriceClicked(dataX)" >{{formatCurrency(dataX.price * (1-dataX.sale))}}</div>
             </div>
         </div>
     </div>
@@ -41,6 +41,11 @@
 <script>
 export default {
     name: 'b-item-card',
+    data(){
+        return {
+            dataX: null
+        }
+    },
     props:{
         data: {
             type: [Object, Array],
@@ -54,13 +59,39 @@ export default {
     created(){
         
     },
+    watch: {
+        data: {
+            handler(val){
+                this.dataX = val;
+                this.dataX.total = JSON.parse(this.dataX.comment_json).length;
+                this.dataX.rate_point = this.dataX.total?(JSON.parse(this.dataX.comment_json).map(el => el.star).reduce((a, b) => a+b)/this.dataX.total).toFixed(1) : 0;
+            },
+            immediate: true
+        }
+    },
     methods: {
+        /**
+         * Hàm format tiền tệ
+         */
+        formatCurrency(val){
+            return Intl.NumberFormat('vi-VN', {
+                style: 'currency',
+                currency: 'VND',
+            }).format(val)
+        },
         /**
          * Hàm xử lý khi bấm vào avatar hoặc title book
          * Created by: thanhdt - 09.05.2021
          */
         bookClicked(bookId){
             this.$router.push({ name: 'book-detail', params: {bookId: bookId } })
+        },
+        /**
+         * Chọn mua sách ở trang home
+         * Created by: thanhdt 25.05.2021
+         */
+        realPriceClicked(data){
+            this.$emit("paymentHome", data)
         }
     },
     

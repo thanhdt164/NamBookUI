@@ -53,6 +53,23 @@ class bookAPI extends baseAPI {
             })
             .catch(e => console.log(e));
     }
+
+    /**
+     * Hàm lấy dữ liệu sách theo genresId
+     * Created by: thanhdt - 09.05.2021
+     * @param {*} genresId
+     * @param {*} callback 
+     * @returns 
+     */
+    getBooksByGenresId2(genresId, callback) {
+        return http.post(`${this.name}/bookbygenres`, genresId)
+            .then(response => {
+                if (response && response.status == 200) {
+                    callback ? callback(response.data) : true;
+                }
+            })
+            .catch(e => console.log(e));
+    }
 }
 
 export default new bookAPI();

@@ -18,21 +18,44 @@ import CoreuiVue from '@coreui/vue'
 import { iconsSet as icons } from './assets/icons/icons.js'
 import store from './store'
 
+import VueSession from 'vue-session'
+Vue.use(VueSession)
+
 Vue.config.performance = true
 Vue.use(CoreuiVue)
 Vue.prototype.$log = console.log.bind(console)
 
+Vue.use(require('vue-moment'));
 Vue.use(VueAxios, axios)
 Vue.use(BootstrapVue)
 Vue.use(IconsPlugin)
 Vue.use(VueRouter)
 Vue.use(Vuex)
-    /* Tích hợp fontAwesome Icon*/
+
+/* Tích hợp fontAwesome Icon*/
 import { library } from '@fortawesome/fontawesome-svg-core'
-import { faUserSecret, faCaretDown, faBars, faUser, faThumbsUp, faTh, faEllipsisV, faInfoCircle, faPen, faCreditCard } from '@fortawesome/free-solid-svg-icons'
+import {
+    faUserSecret,
+    faCaretDown,
+    faBars,
+    faUser,
+    faThumbsUp,
+    faTh,
+    faEllipsisV,
+    faInfoCircle,
+    faPen,
+    faCreditCard,
+    faSearch,
+    faShoppingCart,
+    faCheckSquare,
+    faCartArrowDown,
+    faSquare,
+    faTimesCircle
+} from '@fortawesome/free-solid-svg-icons'
 import { faJs, faVuejs } from '@fortawesome/free-brands-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
-library.add(faUserSecret, faCaretDown, faBars, faUser, faThumbsUp, faTh, faEllipsisV, faInfoCircle, faPen, faCreditCard, faJs, faVuejs)
+library.add(faUserSecret, faCaretDown, faBars, faUser, faThumbsUp, faTh, faEllipsisV, faInfoCircle,
+    faPen, faCreditCard, faSearch, faShoppingCart, faCheckSquare, faCartArrowDown, faSquare, faTimesCircle, faJs, faVuejs)
 Vue.component('font-awesome-icon', FontAwesomeIcon)
 
 

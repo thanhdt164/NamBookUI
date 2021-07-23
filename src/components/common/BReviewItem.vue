@@ -70,7 +70,6 @@ export default {
             handler(val){
                 this.commentX = val
                 this.preProcess();
-                console.log(val)
             }
         }
     },
@@ -106,6 +105,7 @@ export default {
 </script>
 
 <style scoped >
+* { margin: 0 !important; }
     .p-0{
         padding: 0 !important;
     }
@@ -198,6 +198,7 @@ export default {
         cursor: pointer;
     }
     .rit-top-right .like-count{
+        align-self: center;
         font-size: 11px;
         position: relative;
         height: 14px;

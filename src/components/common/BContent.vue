@@ -10,7 +10,14 @@
                 :key="id" 
                 :items="items"
                 :isGenresFilter="isGenresFilter"
+                @paymentHome="paymentHome"
             ></b-box>
+            <DxToast
+                :visible="isVisibleToast"
+                :message="messageToast"
+                :type="typeToast"
+                position="bottom left"
+            />
         </div>
     </div>
     <!-- Trang book-detail -->
@@ -28,7 +35,7 @@
                     <div class="title-two flex">
                         <div class="title-two-left col-9 flex align-center">
                             <div class="author-img">
-                                <img src="https://play-lh.googleusercontent.com/96MZ8FH_OsoelilPEEzUbDQl1TjNpfJrJ6SUyHG6gKOA2gsuIDMFJc0fuJ1fagYaLw=s64-rw" alt="">
+                                <img :src="bookX.author_avatar">
                             </div>
                             <div class="author-name">
                                 <div class="name">{{bookX.author_nm}}
@@ -43,9 +50,9 @@
                 </div>
                 <div class="order">
                     <button type="button" class="btn btn-primary" @click="btnPaymentClicked">
-                        <span class="price">₫{{bookX.price}}</span>
-                        <span class="real-price">₫{{bookX.real_price}}</span>
-                        Ebook
+                        <span class="price">{{formatCurrency(bookX.price)}}</span>
+                        <span class="real-price">{{formatCurrency(bookX.price * (1-bookX.sale))}}</span>
+                        Đặt sách
                     </button>
                 </div>
             </div>
@@ -54,7 +61,8 @@
                 {{bookX.description}}
             </div>
             <div class="expand">
-                <button @click="expand">Read more</button>
+                <button v-if="!expandClicked" @click="expand">Xem thêm</button>
+                <button v-else @click="expand">Thu gọn</button>
             </div>
             <hr/>
             <!-- Review -->
@@ -68,7 +76,7 @@
                         Review policy and info
                     </div>
                     <button class="write-a-review" id="review-btn" @click="btnCommentClicked">
-                        <font-awesome-icon icon="pen" class="pen" /> Write a Review
+                        <font-awesome-icon icon="pen" class="pen" /> Viết bình luận
                     </button>
                 </div>
                 <div class="rate flex">
@@ -92,7 +100,7 @@
                     </div>
                     </div>
                     <div class="rate-total">
-                         <font-awesome-icon icon="user" class="user"/> {{bookX.total}} total
+                         <font-awesome-icon icon="user" class="user"/> {{bookX.total}} đánh giá
                     </div>
                 </div>
                 <div class="review-box">
@@ -113,7 +121,7 @@
         <!-- Similar books -->
         <div class="right">
             <div class="r-top">
-                <div class="title col-8">Similar ebooks</div>
+                <div class="title col-8">Sách liên quan</div>
                 <div class="see-more col-4">
                     <button type="button" class="btn btn-primary">See more</button>
                 </div>
@@ -128,9 +136,84 @@
                 ></b-item-card-2>
             </div>
         </div>
+        <DxToast
+            :visible="isVisibleToast"
+            :message="messageToast"
+            :type="typeToast"
+            position="bottom left"
+        />
+    </div>
+    <!-- Trang shopping cart -->
+    <div 
+      v-if="isShoppingCart"
+      class="content shoping-cart-content">
+        <div class="cart-payment-all">
+            <button class="" @click="paymentClicked">Thanh toán toàn bộ</button>
+        </div>
+        <div v-for="(itemDataCart,id) in dataCart" :key="id" class="box-cart flex">
+            <div class="cart-left">
+                <img :src="itemDataCart.bookData.avatar" alt="">
+            </div>
+            <div class="cart-center col-8">
+                <h6>{{itemDataCart.bookData.book_nm}}</h6>
+                <p>Tác giả: {{itemDataCart.bookData.author_nm}}</p>
+            </div>
+            <div class="cart-right">
+                <div class="cart-r-t">
+                    <div class="cart-amount">
+                        Số lượng:
+                        <input type="number" step="1" v-model="itemDataCart.amount" min="1" :max="itemDataCart.maxAmount">
+                    </div>
+                    <font-awesome-icon icon="trash" class="trash" @click="updateCartInfo(itemDataCart, 'delete')"/>
+                    <font-awesome-icon v-if="itemDataCart.checked" icon="check-square" class="check-square" @click="itemDataCart.checked=!itemDataCart.checked"/>
+                    <font-awesome-icon v-if="!itemDataCart.checked" icon="square" class="check-square" @click="itemDataCart.checked=!itemDataCart.checked"/>
+                </div>
+                <div class="cart-r-c">
+                    <div class="cart-price">{{formatCurrency(parseInt(itemDataCart.amount) * itemDataCart.bookData.price)}}</div>
+                    <div class="cart-rate">
+                        <div class="rating">
+                        <div class="rating-upper" :style="`width: ${3*20}%`">
+                            <span>★</span>
+                            <span>★</span>
+                            <span>★</span>
+                            <span>★</span>
+                            <span>★</span>
+                        </div>
+                        <div class="rating-lower">
+                            <span>★</span>
+                            <span>★</span>
+                            <span>★</span>
+                            <span>★</span>
+                            <span>★</span>
+                        </div>
+                        </div>
+                    </div>
+                    <div class="cart-sales">{{itemDataCart.bookData.sales}} Lượt bán</div>
+                </div>
+                <div class="cart-r-b flex">
+                    <button class="preview">
+                        Xem trước
+                    </button>
+                    <button class="buy" @click="paymentClicked(itemDataCart.bookData)">
+                        <font-awesome-icon icon="cart-arrow-down" class="cart-arrow-down"/>
+                    </button>
+                </div>
+            </div>
+        </div>
+        <DxToast
+            :visible="isVisibleToast"
+            :message="messageToast"
+            :type="typeToast"
+            position="bottom left"
+        />
+    </div>
+    <div class="content profile-content" 
+        v-if="isProfile">
+        abc
     </div>
     <!-- Popup review -->
     <DxPopup
+      v-if="bookX?true:false"
       v-model="dataReviewPopup"
       :visible.sync="dataReviewPopup.isShowReviewPopup"
       :drag-enabled="true"
@@ -194,8 +277,9 @@
             </div>
         </div>
     </DxPopup>
-    <!-- Popup payment -->
+    <!-- Popup addToCart -->
     <DxPopup
+      v-if="dataPaymentPopup.bookData"
       v-model="dataPaymentPopup"
       :visible.sync="dataPaymentPopup.isShowPaymentPopup"
       :drag-enabled="true"
@@ -217,32 +301,79 @@
         location="after"
         :options="closePaymentButtonOptions"
       />
-      <DxToolbarItem
+      <!-- <DxToolbarItem
         widget="dxButton"
         toolbar="bottom"
         location="after"
         :options="submitPaymentButtonOptions"
-      />
+      /> -->
         <div class="payment-popup">
-            <img src="https://books.google.com/books/content/images/frontcover/HqxNvKCx04wC?fife=w160-h230" alt="">
+            <img :src="dataPaymentPopup.bookData.avatar" alt="">
             <div>
                 <div class="payment-header flex">
                     <div class="title">The De-Textbook: The Stuff You Didn't Know About the Stuff You Thought You Knew</div>
-                    <div class="price">₫ 63.098</div>
+                    <div class="price">{{formatCurrency(dataPaymentPopup.bookData.price * (1-dataPaymentPopup.bookData.sale))}}</div>
                 </div>
                 <div class="payment-content">
                     <div class="payment-content-item flex">
                         <font-awesome-icon icon="credit-card" class="credit-card"/>
                         <div class="credit-card-nm">Add credit or debit card</div>
                     </div>
-                    <div class="payment-content-item flex">
+                    <!-- <div class="payment-content-item flex">
                         <font-awesome-icon icon="credit-card" class="credit-card"/>
                         <div class="credit-card-nm">Add credit or debit card</div>
                     </div>
                     <div class="payment-content-item flex">
                         <font-awesome-icon icon="credit-card" class="credit-card"/>
                         <div class="credit-card-nm">Add credit or debit card</div>
+                    </div> -->
+                </div>
+            </div>
+        </div>
+    </DxPopup>
+     <!-- Popup Cart Payment -->
+    <DxPopup
+      v-if="true"
+      v-model="bookData"
+      :visible.sync="isShowCartPaymentPopup"
+      :drag-enabled="true"
+      :close-on-outside-click="true"
+      :show-close-button="false"
+      :show-title="false"
+      title=""
+      width="720px"
+      height="430px"
+      container=".dx-viewport"
+    >
+      <DxPosition
+        at="center"
+        my="center"
+      />
+      <DxToolbarItem
+        widget="dxButton"
+        toolbar="bottom"
+        location="after"
+        :options="cartPaymentButtonOptions"
+      />
+        <div class="cart-payment-popup">
+            <div class="cart-payment-header">
+                Payment
+            </div>
+            <div class="cart-payment-content">
+                <div v-for="(item,id) in dataCartPopup" :key="id" v-show="item.checked" class="cart-payment-item flex">
+                    <div class="cpi-left">
+                        <img :src="item.bookData.avatar" alt="">
                     </div>
+                    <div class="cpi-center">
+                        <div class="title">{{item.bookData.book_nm}}</div>
+                    </div>
+                    <div class="cpi-right">
+                        <div class="price">{{formatCurrency(parseInt(item.amount) * item.bookData.price)}}</div>
+                    </div>
+                </div>
+                <div class="cart-payment-total flex">
+                    <div class="total-label">Total:</div>
+                    <div class="total-value">{{(totalPricePayment())}}</div>
                 </div>
             </div>
         </div>
@@ -255,7 +386,11 @@ import Bbox from '@/components/common/BBox.vue'
 import BItemCard2 from '@/components/common/BItemCard2.vue'
 import BReviewItem from '@/components/common/BReviewItem.vue'
 import { DxPopup, DxPosition, DxToolbarItem } from 'devextreme-vue/popup';
-
+import { DxToast } from 'devextreme-vue/toast';
+import cartAPI from '@/api/cartAPI.js'
+import userAPI from '@/api/userAPI.js'
+import detailOrdersAPI from '@/api/detailOrdersAPI.js'
+import moment from 'moment'
 
 export default {
     name: 'b-content',
@@ -265,22 +400,24 @@ export default {
         'b-review-item': BReviewItem,
         DxPopup,
         DxPosition,
-        DxToolbarItem
+        DxToolbarItem,
+        DxToast,
     },
     data(){
         return {
+            userInfo: null,
             dataBookX: [],
             bookX: null,
             dataSourceX: [],
             expandClicked: false,
             closeCommentButtonOptions: {
-                text: 'Close',
+                text: 'Đóng',
                 onClick: () => {
                     this.dataReviewPopup.isShowReviewPopup = false;
                 }
             },
             submitCommentButtonOptions:{
-                text: 'Submit',
+                text: 'Gửi bình luận',
                 onClick: () => {
                     this.dataReviewPopup.isShowReviewPopup = false;
                     this.handleComment();
@@ -290,29 +427,77 @@ export default {
                 isShowReviewPopup: false,
                 headerText: 'Review by ...',
                 bookAvatar: "https://books.google.com/books/content/images/frontcover/HqxNvKCx04wC?fife=w160-h230",
-                commnetText: "",
+                commentText: "",
                 commentStar: 1
             },
             closePaymentButtonOptions: {
-                text: 'Close',
+                text: 'Thêm vào giỏ hàng',
                 onClick: () => {
                     this.dataPaymentPopup.isShowPaymentPopup = false;
+                    this.addToCart();
                 }
             },
             submitPaymentButtonOptions:{
-                text: 'Submit',
+                text: 'Thanh toán',
                 onClick: () => {
                     this.dataPaymentPopup.isShowPaymentPopup = false;
-                    this.handleComment();
+                    this.handlePayment();
                 }
             },
             dataPaymentPopup:{
                 isShowPaymentPopup: false,
-                headerText: 'Review by ...',
-                bookAvatar: "https://books.google.com/books/content/images/frontcover/HqxNvKCx04wC?fife=w160-h230",
-                commnetText: "",
-                commentStar: 1
+                bookData: null
             },
+            dataCart:[
+                {
+                    bookData: {
+                        book_id: 1,
+                        book_nm: "Dear Bob: Bob Hope's Wartime Correspondence with the G.I.s of World War II",
+                        price: 80.658,
+                        sale: 0.1,
+                        sales: 123,
+                        author_nm: "Thích Nhat Hanh",
+                        comment_json: {
+
+                        }
+                    },
+                    checked: true,
+                    totalPrice: null,
+                    maxAmount: 5,
+                    amount: 1
+                },
+                {
+                    bookData: {
+                        book_id: 1,
+                        book_nm: "Dear Bob: Bob Hope's Wartime Correspondence with the G.I.s of World War II",
+                        price: 80.658,
+                        sale: 0.1,
+                        sales: 123,
+                        author_nm: "Thích Nhat Hanh",
+                        comment_json: {
+
+                        }
+                    },
+                    checked: true,
+                    totalPrice: null,
+                    maxAmount: 5,
+                    amount: 1
+                },
+            ],
+            dataCartPopup: [],
+            isShowCartPaymentPopup: false,
+            cartPaymentButtonOptions:{
+                text: 'Payment',
+                onClick: () => {
+                    this.isShowCartPaymentPopup = false;
+                    this.handleCartPayment();
+                }
+            },
+            dataPaymentCart: [],
+            /* Thông báo */
+            isVisibleToast: false,
+            messageToast: "Thành công",
+            typeToast: "success",
         }
     },
     props: {
@@ -331,12 +516,145 @@ export default {
         isGenresFilter: {
             type: Boolean,
             default: false
+        },
+        isShoppingCart : {
+            type: Boolean,
+            default: false
+        },
+        dataShoppingCart: {
+            type: Object,
+            default: null
+        },
+        isProfile:{
+            type: Boolean,
+            default: false
         }
     },
     created(){
-        
+        /* Lấy thông tin người dùng */
+        let accountName = localStorage.getItem('acc-name')
+        let expiredTime = new Date(localStorage.getItem('exp-time'))
+        let now = new Date(moment())
+        if(expiredTime > now){
+            userAPI.getUserInfo(accountName, (res)=>{
+                this.userInfo = res;
+                // this.getDataShoppingCart(this.userInfo.cart_id);
+            })
+        }else{
+            this.$router.push({ name: 'Login'})
+        }
     },
     methods: {
+        /**
+         * Hiển thị thông báo
+         */
+        showToast(message = "Thành công", type = true) {
+            this.isVisibleToast = true;
+            this.messageToast = message;
+            this.typeToast = type? 'success' : 'error';
+        },
+        /**
+         * Hàm format tiền tệ
+         */
+        formatCurrency(val){
+            return Intl.NumberFormat('vi-VN', {
+                style: 'currency',
+                currency: 'VND',
+            }).format(val)
+        },
+        /**
+         * Thêm sách vào cart
+         * Created by: thanhdt - 05.06.2021
+         */
+        addToCart(){
+            let dataAddToCart= {
+                bookData: this.dataPaymentPopup.bookData,
+                amount: 1,
+                checked: true,
+                totalPrice: null,
+                maxAmount: null,
+            }
+            let cartModel = null
+            /* Lấy thông tin shopping cart của user */
+            cartAPI.getCartInfo(this.userInfo.user_id, (res) => {
+               cartModel = res;
+               cartModel.cart_json = JSON.parse(cartModel.cart_json)
+               cartModel.cart_json.push(dataAddToCart)
+               cartModel.cart_json = JSON.stringify(cartModel.cart_json)
+
+               /* Cập nhật lại thông tin shopping cart */
+                cartAPI.updateCart(cartModel)
+                this.showToast();
+           })
+        },
+        /**
+         * Hàm tính tổng tiền trước thanh toán
+         * Created by: thanhdt - 05.06.2021
+         */
+        totalPricePayment(){
+            let rs = 0;
+            this.dataCartPopup.forEach(el=>{
+                if(el.checked){
+                    rs += el.bookData.price * el.amount;
+                }
+            })
+            return this.formatCurrency(rs);
+        },
+        /**
+         * Hàm xử lý trước thanh toán
+         * Created by: thanhdt - 05.06.2021
+         */
+        paymentClicked(bookData){
+            if(bookData.book_id){
+                this.dataCartPopup = this.dataCart.filter(el => el.bookData.book_id == bookData.book_id);
+                /* Set giá trị cho dataPaymentCart */
+                this.dataPaymentCart = this.dataCart.filter(el => el.bookData.book_id == bookData.book_id && el.checked);
+            }else{
+                this.dataCartPopup = this.dataCart;
+                /* Set giá trị cho dataPaymentCart */
+                this.dataPaymentCart = this.dataCart.filter(el => el.checked);
+            }
+            this.openCartPaymentPopup();
+        },
+        /**
+         * Hàm mở popup payment cart
+         * Created by: thanhdt - 05.06.2021
+         */
+        openCartPaymentPopup(){
+            this.isShowCartPaymentPopup = true;
+        },
+        /**
+         * Hàm xác nhận thank toán
+         */
+        handleCartPayment(){
+            var me = this;
+            // Sử dụng dataPaymentCart để làm parram
+            var param = {
+                book_ids: [],
+                user_id: this.userInfo.user_id,
+                amounts: []
+            };
+            this.dataPaymentCart.forEach(el => {
+                param.book_ids.push(el.bookData.book_id);
+                param.amounts.push(el.amount);
+            })
+            detailOrdersAPI.insertDetailOrders(param, (res) => {
+                // Thanh toán thành công
+                me.showToast("Thành công", res?true:false)
+                // Thực hiển bỏ sách khỏi giỏ hàng
+                me.updateCartInfo(me.dataPaymentCart, 'delete')
+
+            })
+        },
+
+        /**
+         * Hàm xử lý payment ở trang home
+         * Created by: thanhdt 25.05.2021
+         */
+        paymentHome(book){
+            this.dataPaymentPopup.isShowPaymentPopup = true;
+            this.dataPaymentPopup.bookData = book;
+        },
         /**
          * Hàm xử lý click comment button
          * Created by: thanhdt - 15.05.2021
@@ -344,7 +662,7 @@ export default {
         btnCommentClicked(){
             this.dataReviewPopup.isShowReviewPopup = true,
             this.dataReviewPopup.bookAvatar = this.bookX.avatar;
-            this.dataReviewPopup.headerText = `Review by Thanh Trung`
+            this.dataReviewPopup.headerText = `Bình luận bởi ${this.userInfo.user_nm}`
         },
         /**
          * Hàm xử lý khi submit comment
@@ -384,12 +702,11 @@ export default {
          */
         earlyProcess(){
             this.bookX.publishing_date_name = this.formatDate(this.bookX.publishing_date, 1);
-            this.bookX.price = parseInt(this.bookX.price).toFixed(3);
-            this.bookX.real_price = parseInt(this.bookX.price * (1 - this.bookX.sale)).toFixed(3);
+            this.bookX.price = (parseInt(this.bookX.price));
+            this.bookX.real_price = (parseInt(this.bookX.price * (1 - this.bookX.sale)));
             this.bookX.total = JSON.parse(this.bookX.comment_json).length;
             this.bookX.rate_point = this.bookX.total?(JSON.parse(this.bookX.comment_json).map(el => el.star).reduce((a, b) => a+b)/this.bookX.total).toFixed(1) : 0;
             this.bookX.comment_json = JSON.parse(this.bookX.comment_json);
-            console.log(this.bookX)
         },
 
         /**
@@ -417,7 +734,27 @@ export default {
             style: 'currency',
             currency: 'USD',
             });
-        }
+        },
+        /**
+         * Hàm cập nhật dữ liệu cart
+         * Created by: thanhdt - 12.05.2021
+         */
+        updateCartInfo(val, action){
+            if(action == 'delete'){
+                if(val.length){
+                    val.forEach(item => {this.dataCart = this.dataCart.filter(el => el.bookData.book_id != item.bookData.book_id)})
+                }else{
+                    this.dataCart = this.dataCart.filter(el => el.bookData.book_id != val.bookData.book_id);
+                }
+                 /* Lấy thông tin shopping cart của user */
+                cartAPI.getCartInfo(this.userInfo.user_id, (res) => {
+                    let cartModel = res;
+                    cartModel.cart_json = JSON.stringify(this.dataCart)
+                    /* Cập nhật lại thông tin shopping cart */
+                    cartAPI.updateCart(cartModel)
+                })
+            }
+        },
     },
     watch: {
         dataSource: {
@@ -433,19 +770,40 @@ export default {
         book: {
             handler(val){
                 this.bookX = val;
+                this.dataPaymentPopup.bookData = val;
             },
             immediate: true,
             deep: true
         },
+        dataShoppingCart:{
+            handler(val){
+                this.dataCart = val.cart_json;
+                this.dataCartPopup = this.dataCart;
+            }
+        }
     }
 }
 </script>
 
-<style scoped >
+<style lang="scss">
+.dx-toast-content {
+    min-width: 300px;
+    max-width: 400px;
+}
+</style>
+<style scoped lang="scss" >
+* { margin: 0 !important; }
+    .col-2{
+        padding: 0;
+    }
     .content{
         background-color: #F1F1F1;
         min-height: 100vh;
         padding: 30px 10% 30px 16%;
+        background-image: url("https://images.unsplash.com/photo-1512903491135-76ec8a4510b7?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1yZWxhdGVkfDd8fHxlbnwwfHx8fA%3D%3D&auto=format&fit=crop&w=600&q=60");
+        // background-image: url("https://images.unsplash.com/photo-1514466256797-efd55fa1bf4e?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=663&q=80");
+        background-size: 100vw;
+        background-repeat: no-repeat;
     }
     .isGenresFilter{
         padding: 30px 8% 30px 16%;
@@ -454,6 +812,224 @@ export default {
         margin-bottom: 20px;
         border-radius: 4px;
     }
+    .shoping-cart-content{
+        padding: 30px 15% 30px 20%;    
+    }
+    .cart-payment-all{  
+    
+    }
+    .cart-payment-all button {
+        font-size: 14px;
+        font-weight: bold;
+        color: #666666;
+        height: 36px;
+        line-height: 34px;
+        padding: 0 20px;
+        border-radius: 4px;
+        border: 1px solid #a2a2a2;
+        background-color: #fff;
+        position: relative;
+        left: 83.6%;
+        margin-bottom: 10px !important;
+    }
+    .cart-payment-all button:hover{
+        box-shadow: 0 1px 0 0 rgb(0 0 0 / 27%);
+        cursor: pointer;
+        color: hsl(87, 58%, 45%);
+        border-color: hsl(87, 58%, 45%);
+    }
+    .box-cart{
+        padding: 16px;
+        position: relative;
+        height: 228px;
+        background-color: #fff;
+        border-radius: 4px;
+        font-family: "Roboto", sans-serif;
+        margin-bottom: 10px !important;
+    }
+    .cart-left img{
+        height: 196px;
+        width: auto;
+        border-radius: 2px;
+    }
+    .cart-center{
+        padding: 0px 10px !important;
+        font-family: "Roboto", sans-serif;
+    }
+    .cart-center h6{
+        font-weight: bold;
+        line-height: 30px;
+    }
+    .cart-center p{
+        font-size: 13px;
+        line-height: 20px;
+        /* padding-left: 10px; */
+    }
+    .cart-center h6:hover{
+        text-decoration: underline;
+    }
+    .cart-right{
+        position: absolute;
+        top: 16px;
+        right: 16px;
+        height: calc(100% - 32px);
+        border-left: 1px solid hsl(0, 0%, 90%);
+        padding: 0 10px;
+    }
+    .cart-r-t{
+        height: 36px;
+        line-height: 36px;
+        position:relative;
+    }
+    .cart-r-t .check-square{
+        font-size: 23px;
+        position: absolute;
+        right: 4px;
+        top: 7px;
+        cursor: pointer;
+    }
+    .cart-r-t .trash{
+        font-size: 20px;
+        position: absolute;
+        right: 36px;
+        top: 7px;
+        cursor: pointer;
+    }
+    .cart-amount{
+        font-size: 14px;
+        color: #666666;
+        font-weight: bold;
+    }
+    .cart-amount input{
+        width: 50px;
+        height: 27px;
+        border: none;
+        outline: none;
+        font-family: "Roboto", sans-serif;
+        font-weight: bold;
+        padding-left: 4px;
+    }
+
+    .cart-r-c{
+        height: calc(100% - 76px);
+        padding: 10px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+    .cart-r-c .cart-price{
+        font-size: 18px;
+        color: #4d4d4d;
+        font-weight: bold;
+    }
+
+    .cart-r-c .cart-rate .rating{
+        font-size: 20px;
+    }
+    .cart-r-c .cart-sales{
+        font-size: 13px;
+    } 
+    .cart-r-b{
+        height: 40px;
+    }
+    .cart-r-b .preview{
+        width: 175px;
+        height: 100%;
+        font-size: 14px;
+        font-weight: bold;
+        color: #666666;
+        border: 1px solid;
+        border-color: hsl(0, 0%, 80%);
+        outline: none;
+        border-radius: 3px;
+        margin-right: 4px !important;
+        background-color: #fff;
+    }
+    .cart-r-b .preview:hover{
+        background-color: #CCCCCC;
+        color: #fff;
+    }
+    .cart-r-b .buy{
+        height: 40px;
+        width: 40px;
+        border: 1px solid;
+        border-color: hsl(87, 58%, 45%);
+        border-radius: 3px;
+        background-color: #fff;
+    }
+    .cart-r-b .buy:hover{
+        background-color: hsl(87, 58%, 45%);
+        .cart-arrow-down{
+            color: #fff;
+        }
+    }
+    .cart-r-b .buy .cart-arrow-down{
+        color: hsl(87, 58%, 45%);
+    }
+    .cart-r-b .buy .cart-arrow-down:hover{
+        color: #fff;
+    }
+
+/* Cart payment popup */
+    .cart-payment-popup{
+        font-family: "Roboto", sans-serif;
+    }
+    .cart-payment-header{
+        height: 60px;
+        background-color: #039be5;
+        color: #fff;
+        padding-left: 20px;
+        font-size: 20px;
+        line-height: 60px;
+        border-radius: 4px 4px 0px 0px;
+    }
+    .cart-payment-content{
+        overflow-x: hidden;
+        height: 260px;
+        margin: 10px 0 !important;
+    }
+    .cart-payment-item{
+        margin-bottom: 12px !important;
+       
+    }
+    .cpi-left{
+        width: 92px;
+        display: flex;
+        justify-content: space-around;
+    }
+    .cpi-left img{
+        height: 120px;
+        width: auto;
+    }
+    .cpi-center{
+        padding: 10px 20px;
+        width: 450px;
+        border-bottom: 1px solid #AAA;
+        margin-right: 10px !important;
+    }
+    .cpi-right{
+        display: flex;
+        align-items: center;
+        width: 100px;
+        padding-left: 10px;
+        border-bottom: 1px solid #AAA;
+    }
+    .cart-payment-total{
+        height: 40px;
+        line-height: 40px;
+        font-size: 20px;
+        color: #666666;
+        font-weight: bold;
+    }
+    .cart-payment-total .total-label{
+        width: 500px;
+        text-align: right;
+    }
+    .cart-payment-total .total-value{
+        padding-left: 8px;
+        font-weight: bold;
+    }
+
 
     /* css book-detail */
     .content-book-detail{
@@ -485,6 +1061,7 @@ export default {
         font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
         text-align: left;
         color: #333333;
+        color: #fff;
         font-weight: 400;
         align-self: center;
     }
@@ -615,6 +1192,8 @@ export default {
         padding-top: 32px;
     }
     .expand button{
+        position: relative;
+        left: 42%;
         border: none;
         color: #01579B;
         text-transform: uppercase;
@@ -685,6 +1264,8 @@ export default {
         color: #777777;
     }
     .rate-number{
+        position: relative;
+        left: 20%;
         font-size: 64px;
         height: 64px;
         width: 120px;
@@ -699,6 +1280,7 @@ export default {
         margin: 4px !important;
     }
     .rate-total{
+        align-self: center;
         font-size: 14px;
         margin-top: 16px !important;
     }
@@ -748,7 +1330,6 @@ export default {
         overflow: hidden;
         text-overflow: ellipsis;
         font-size: 13px;
-        height: ;
     }
     .review-content .right {
         height: 183px;
@@ -793,6 +1374,7 @@ export default {
         height: auto;
         position: absolute;
         left: 20px;
+        top: 10px;
     }
     .payment-header{
         height: 112px;
@@ -828,6 +1410,11 @@ export default {
         padding-left: 10px;
     }
 
+    /* Style cho trang profile */
+    .profile-content{
+        padding: 30px 15% 30px 20%;    
+        height: 100%;
+    }
 
 
 /* Style lại cho star-rating */

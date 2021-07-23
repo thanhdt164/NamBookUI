@@ -1,8 +1,8 @@
 <template>
   <CChartLine
-    :datasets="defaultDatasets"
+    :datasets="customDatasets"
     :options="defaultOptions"
-    :labels="['Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa', 'Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa', 'Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa', 'Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa', 'Su']"
+    :labels="label"
   />
 </template>
 
@@ -16,10 +16,67 @@ function random (min, max) {
 
 export default {
   name: 'MainChartExample',
+  data(){
+    return {
+      // defaultLabel : ['Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa', 'Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa', 'Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa', 'Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa', 'Su'],
+    }
+  },
+  props:{
+    label:{
+      type: [Array, String],
+      default: () => []
+    },
+    dataRevenue: {
+      type: [Array, Object],
+      default: () => []
+    },
+    dataSpending: {
+      type: [Array, Object],
+      default: () => []
+    }
+  },
+  watch:{
+    dataSpending: {
+      handler(val){
+        this.dataSpending = val;
+      },
+      // immediate: true
+    },
+    dataRevenue: {
+      handler(val){
+        this.dataRevenue = val;
+      },
+      // immediate: true
+    }
+  },
   components: {
     CChartLine
   },
   computed: {
+    customDatasets() {
+      const brandSuccess = getStyle('success2') || '#4dbd74'
+      const brandInfo = getStyle('info') || '#20a8d8'
+
+      return [
+        {
+          label: 'Spending',
+          backgroundColor: hexToRgba(brandInfo, 10),
+          borderColor: brandInfo,
+          pointHoverBackgroundColor: brandInfo,
+          borderWidth: 2,
+          data: this.dataSpending.map(el => this.formatCurrency(el.TotalSpending))
+        },
+        {
+          label: 'Real Revenue',
+          backgroundColor: 'transparent',
+          borderColor: brandSuccess,
+          pointHoverBackgroundColor: brandSuccess,
+          borderWidth: 2,
+          data: this.dataRevenue.map(el => this.formatCurrency(el.TotalRealRevenue))
+        }
+      ]
+    },
+
     defaultDatasets () {
       const brandSuccess = getStyle('success2') || '#4dbd74'
       const brandInfo = getStyle('info') || '#20a8d8'
@@ -68,20 +125,19 @@ export default {
 
         maintainAspectRatio: false,
         legend: {
-          display: false
+          display: true
         },
         scales: {
           xAxes: [{
             gridLines: {
-              drawOnChartArea: false
+              drawOnChartArea: true
             }
           }],
           yAxes: [{
             ticks: {
               beginAtZero: true,
               maxTicksLimit: 5,
-              stepSize: Math.ceil(250 / 5),
-              max: 250
+              stepSize: Math.ceil(250 / 5)
             },
             gridLines: {
               display: true
@@ -93,11 +149,23 @@ export default {
             radius: 0,
             hitRadius: 10,
             hoverRadius: 4,
-            hoverBorderWidth: 3
+            hoverBorderWidth: 8
           }
         }
       }
     }
-  }
+  },
+  methods: {
+    /**
+     * Hàm format tiền tệ
+     */
+    formatCurrency(val){
+        return Intl.NumberFormat('vi-VN', {
+            style: 'currency',
+            currency: 'VND',
+        }).format(val)
+    },
+  },
+
 }
 </script>

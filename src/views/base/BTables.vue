@@ -62,7 +62,7 @@
     </CRow>
 
     <CRow>
-      <CCol sm="8">
+      <CCol sm="12">
         <CTableWrapper
           :items="getShuffledUsersData()"
           hover
