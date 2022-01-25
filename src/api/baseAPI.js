@@ -20,6 +20,26 @@ export default class baseAPI {
             .catch(e => { console.log(e) })
     }
 
+    Insert(data, callback) {
+        return http.post(`${this.name}`, data)
+            .then(response => {
+                if (response.status && response.status == 200) {
+                    callback ? callback(response.data) : true;
+                }
+            })
+            .catch(e => { console.log(e) })
+    }
+
+    Update(data, callback) {
+        return http.put(`${this.name}`, data)
+            .then(response => {
+                if (response.status && response.status == 200) {
+                    callback ? callback(response.data) : true;
+                }
+            })
+            .catch(e => { console.log(e) })
+    }
+
     /**
      * Hàm lấy dữ liệu theo id
      * @param {*} id 

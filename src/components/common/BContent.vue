@@ -10,6 +10,7 @@
                 :key="id" 
                 :items="items"
                 :isGenresFilter="isGenresFilter"
+                :isShowSeeMore="isShowSeeMore"
                 @paymentHome="paymentHome"
             ></b-box>
             <DxToast
@@ -50,9 +51,9 @@
                 </div>
                 <div class="order">
                     <button type="button" class="btn btn-primary" @click="btnPaymentClicked">
-                        <span class="price">{{formatCurrency(bookX.price)}}</span>
-                        <span class="real-price">{{formatCurrency(bookX.price * (1-bookX.sale))}}</span>
-                        Đặt sách
+                        <span v-show="bookX.price" class="price">{{formatCurrency(bookX.price)}}</span>
+                        <span class="real-price">{{bookX.price>0?formatCurrency(bookX.price * (1-bookX.sale)):'Miễn phí'}}</span>
+                        {{bookX.price>0?'Đặt sách':''}}
                     </button>
                 </div>
             </div>
@@ -83,7 +84,7 @@
                     <div class="rate-number">{{bookX.rate_point}}</div>
                     <div class="rate-star">
                         <div class="rating">
-                        <div class="rating-upper" :style="`width: ${bookX.rate_point*20}%`">
+                        <div class="rating-upper" :style="`width: ${parseFloat(bookX.rate_point)*20}%`">
                             <span>★</span>
                             <span>★</span>
                             <span>★</span>
@@ -104,11 +105,11 @@
                     </div>
                 </div>
                 <div class="review-box">
-                    <b-review-item
-                    ></b-review-item>
                     <b-review-item 
                         v-for="(comment, id) in bookX.comment_json" :key="id"  
                         :comment="comment"
+                        :userInfo="userInfo"
+                        :bookX="bookX"
                     ></b-review-item>
                 </div>
             </div>
@@ -123,12 +124,12 @@
             <div class="r-top">
                 <div class="title col-8">Sách liên quan</div>
                 <div class="see-more col-4">
-                    <button type="button" class="btn btn-primary">See more</button>
+                    <button v-if="false" type="button" class="btn btn-primary">Xem thêm</button>
                 </div>
             </div>
             <div class="r-body">
                 <b-item-card-2
-                  v-for="(dataBookItem, id) in dataBookX.slice(0, 5)" :key="id"
+                  v-for="(dataBookItem, id) in dataBookX.filter(el=>el.book_id != bookX.book_id).slice(0, 5)" :key="id"
                   v-show="dataBookX && dataBookX.length"
                   :dataBookItem="dataBookItem"
                   v-model="dataBookX"
@@ -147,9 +148,10 @@
     <div 
       v-if="isShoppingCart"
       class="content shoping-cart-content">
-        <div class="cart-payment-all">
+        <div class="cart-payment-all" v-if="dataCart && dataCart.length > 0">
             <button class="" @click="paymentClicked">Thanh toán toàn bộ</button>
         </div>
+        <div v-else class="no-data">Không có dữ liệu!!</div>
         <div v-for="(itemDataCart,id) in dataCart" :key="id" class="box-cart flex">
             <div class="cart-left">
                 <img :src="itemDataCart.bookData.avatar" alt="">
@@ -162,7 +164,7 @@
                 <div class="cart-r-t">
                     <div class="cart-amount">
                         Số lượng:
-                        <input type="number" step="1" v-model="itemDataCart.amount" min="1" :max="itemDataCart.maxAmount">
+                        <input type="number" step="1" v-model="itemDataCart.amount" :min="1" :max="itemDataCart.maxAmount" @change="changeAmount(itemDataCart)">
                     </div>
                     <font-awesome-icon icon="trash" class="trash" @click="updateCartInfo(itemDataCart, 'delete')"/>
                     <font-awesome-icon v-if="itemDataCart.checked" icon="check-square" class="check-square" @click="itemDataCart.checked=!itemDataCart.checked"/>
@@ -172,7 +174,7 @@
                     <div class="cart-price">{{formatCurrency(parseInt(itemDataCart.amount) * itemDataCart.bookData.price)}}</div>
                     <div class="cart-rate">
                         <div class="rating">
-                        <div class="rating-upper" :style="`width: ${3*20}%`">
+                        <div class="rating-upper" :style="`width: ${parseFloat(itemDataCart.rate_point*20)}%`">
                             <span>★</span>
                             <span>★</span>
                             <span>★</span>
@@ -191,7 +193,7 @@
                     <div class="cart-sales">{{itemDataCart.bookData.sales}} Lượt bán</div>
                 </div>
                 <div class="cart-r-b flex">
-                    <button class="preview">
+                    <button class="preview" @click="() => {$router.push({name:'book-detail', params: {bookId: itemDataCart.bookData.book_id }})}">
                         Xem trước
                     </button>
                     <button class="buy" @click="paymentClicked(itemDataCart.bookData)">
@@ -209,7 +211,94 @@
     </div>
     <div class="content profile-content" 
         v-if="isProfile">
-        abc
+        <div class="profile-inside">
+            <div class="p-background">
+                <img src="https://image.shutterstock.com/image-photo/abstract-ocean-art-natural-luxury-600w-1040400583.jpg" alt="">
+            </div>
+            <div class="p-content">
+                <div class="p-avatar">
+                    <img :src="userInfo.user_avatar?userInfo.user_avatar:'https://lh3.googleusercontent.com/ogw/ADGmqu9HKP2aukmMBAbPzUiv7aM7E9WJ1sXtDvJr7iXm=s32-c-mo'" alt="">
+                </div>
+                <div class="p-text">
+                    <CRow>
+                        <CCol md="12" style="height: 100%">
+                            <CCard>
+                                <CCardHeader>
+                                    <strong>Thông tin chung</strong>
+                                </CCardHeader>
+                                <CCardBody>
+                                    <CForm>
+                                    <CInput
+                                        description="Thông tin địa chỉ."
+                                        label="Địa chỉ"
+                                        horizontal
+                                        autocomplete="name"
+                                        v-model="userInfo.address"
+                                        :disabled="!isEditProfile"
+                                    />
+                                   <!--  <CInput
+                                        label="Ngày sinh"
+                                        horizontal
+                                        :type="isEditProfile?'date':'date'"
+                                        description="Thông tin ngày sinh."
+                                        v-model="varNgay"
+                                        :disabled="!isEditProfile"
+                                    /> -->
+                                    
+                                    <CRow form class="form-group">
+                                        <CCol tag="label" sm="3" class="col-form-label">
+                                        Giới tính
+                                        </CCol>
+                                        <CCol>
+                                            <CInputCheckbox
+                                                :label="userInfo.gender?'Nam':'Nam'"
+                                                horizontal
+                                                :checked="userInfo.gender"
+                                                description="Thông tin giới tính."
+                                                :disabled="!isEditProfile"
+                                                
+                                                @update:checked="changeGender"
+                                            />
+                                        </CCol>
+                                    </CRow>
+                                    <CInput
+                                        label="Email"
+                                        description="Thông tin địa chỉ email."
+                                        type="email"
+                                        horizontal
+                                        autocomplete="email"
+                                        v-model="userInfo.email"
+                                        :disabled="!isEditProfile"
+                                    />
+                                    <CInput
+                                        label="Số điện thoại"
+                                        horizontal
+                                        description="Thông tin số điện thoại."
+                                        v-model="userInfo.phone_number"
+                                        :disabled="!isEditProfile"
+                                    />
+                                    </CForm>
+                                </CCardBody>
+                                <CCardFooter>
+                                    <CButton v-if="!isEditProfile" @click="editProfileClicked" size="sm" color="primary"><CIcon name="cil-pencil"/> Chỉnh sửa</CButton>
+                                    <CButton v-else @click="saveProfileClicked" size="sm" color="success"><CIcon name="cil-check-circle"/> Lưu</CButton>
+                                </CCardFooter>
+                            </CCard>
+                        </CCol>
+                    </CRow>
+                </div>
+                <div class="p-under">
+                    <div class="p-name"> {{userInfo.user_nm}} </div>
+                    <div class="p-role"> {{userInfo.role_ids.includes("4")?"Quản trị viên":"Người dùng"}}</div>
+                </div>
+            </div>
+        </div>
+        <DxToast
+            :visible="isVisibleToast"
+            :message="messageToast"
+            :type="typeToast"
+            position="bottom left"
+        />
     </div>
     <!-- Popup review -->
     <DxPopup
@@ -251,7 +340,7 @@
                     </div>
                     <!-- <p>How To: Absurd Scientific Advice for Common Real-World Problems</p> -->
                     <div class="right">
-                        <textarea v-model="dataReviewPopup.commnetText" placeholder="Tell others what you think about this book. Would you recommend it, and why?"/>
+                        <textarea v-model="dataReviewPopup.commentText" placeholder="Tell others what you think about this book. Would you recommend it, and why?"/>
                         <p>Most helpful reviews have 100 words or more</p>
                         <div class="rating">
                                 <div class="rating-upper" 
@@ -389,7 +478,9 @@ import { DxPopup, DxPosition, DxToolbarItem } from 'devextreme-vue/popup';
 import { DxToast } from 'devextreme-vue/toast';
 import cartAPI from '@/api/cartAPI.js'
 import userAPI from '@/api/userAPI.js'
+import storageAPI from '@/api/storageAPI.js'
 import detailOrdersAPI from '@/api/detailOrdersAPI.js'
+import commentAPI from '@/api/commentAPI.js'
 import moment from 'moment'
 
 export default {
@@ -498,6 +589,10 @@ export default {
             isVisibleToast: false,
             messageToast: "Thành công",
             typeToast: "success",
+            /* Profile */
+            isEditProfile: false,
+
+            varNgay: "2010-07-06",
         }
     },
     props: {
@@ -516,6 +611,10 @@ export default {
         isGenresFilter: {
             type: Boolean,
             default: false
+        },
+        isShowSeeMore: {
+            type: Boolean,
+            default: true
         },
         isShoppingCart : {
             type: Boolean,
@@ -545,11 +644,28 @@ export default {
         }
     },
     methods: {
+        changeGender(val){
+            this.userInfo.gender = val?1:0;
+        },
+        editProfileClicked(){
+            this.isEditProfile = true;
+        },
+        saveProfileClicked(){
+            // Lưu dữ liệu người dùng
+            userAPI.Update(this.userInfo, (res) => {
+                console.log(res)
+            })
+            this.showToast();
+            this.isEditProfile = false;
+        },
         /**
          * Hiển thị thông báo
          */
         showToast(message = "Thành công", type = true) {
-            this.isVisibleToast = true;
+            this.isVisibleToast = false;
+            setTimeout(() => {
+                this.isVisibleToast = true;
+            }, 0);
             this.messageToast = message;
             this.typeToast = type? 'success' : 'error';
         },
@@ -567,25 +683,34 @@ export default {
          * Created by: thanhdt - 05.06.2021
          */
         addToCart(){
-            let dataAddToCart= {
-                bookData: this.dataPaymentPopup.bookData,
-                amount: 1,
-                checked: true,
-                totalPrice: null,
-                maxAmount: null,
-            }
-            let cartModel = null
-            /* Lấy thông tin shopping cart của user */
-            cartAPI.getCartInfo(this.userInfo.user_id, (res) => {
-               cartModel = res;
-               cartModel.cart_json = JSON.parse(cartModel.cart_json)
-               cartModel.cart_json.push(dataAddToCart)
-               cartModel.cart_json = JSON.stringify(cartModel.cart_json)
+            var bookId = this.dataPaymentPopup.bookData.book_id;
+            storageAPI.getAmountInstorage({book_id: bookId}, (res) => {
+                if(res[0]>0){
+                    let dataAddToCart= {
+                        bookData: this.dataPaymentPopup.bookData,
+                        amount: 1,
+                        checked: true,
+                        totalPrice: null,
+                        maxAmount: res[0],
+                    }
+                    let cartModel = null
+                    /* Lấy thông tin shopping cart của user */
+                    cartAPI.getCartInfo(this.userInfo.user_id, (res) => {
+                    cartModel = res;
+                    cartModel.cart_json = JSON.parse(cartModel.cart_json)
+                    cartModel.cart_json.push(dataAddToCart)
+                    cartModel.cart_json = JSON.stringify(cartModel.cart_json)
 
-               /* Cập nhật lại thông tin shopping cart */
-                cartAPI.updateCart(cartModel)
-                this.showToast();
-           })
+                    /* Cập nhật lại thông tin shopping cart */
+                        cartAPI.updateCart(cartModel)
+                        this.showToast();
+                    })
+                }else{
+                    this.showToast("Sách đã hết", false);
+                }
+            })
+
+            
         },
         /**
          * Hàm tính tổng tiền trước thanh toán
@@ -624,6 +749,16 @@ export default {
             this.isShowCartPaymentPopup = true;
         },
         /**
+         * Hàm xử lý thay đổi số lượng sách mua
+         */
+        changeAmount(item){
+            if(parseInt(item.amount)>item.maxAmount){
+                item.amount = item.maxAmount;
+            }else if(parseInt(item.amount)<1){
+                item.amount = 1;
+            }
+        },
+        /**
          * Hàm xác nhận thank toán
          */
         handleCartPayment(){
@@ -640,7 +775,7 @@ export default {
             })
             detailOrdersAPI.insertDetailOrders(param, (res) => {
                 // Thanh toán thành công
-                me.showToast("Thành công", res?true:false)
+                me.showToast("Thành công", res?true:true)
                 // Thực hiển bỏ sách khỏi giỏ hàng
                 me.updateCartInfo(me.dataPaymentCart, 'delete')
 
@@ -669,10 +804,31 @@ export default {
          * Created by: thanhdt - 15.05.2021
          */
         handleComment(){
+            /* xử lý lưu comment */
+            var newComment = {
+                comment_date: new Date(),
+                comment_date_name: null,
+                content: this.dataReviewPopup.commentText,
+                star: this.dataReviewPopup.commentStar,
+                user_avatar: this.userInfo.user_avatar,
+                user_id: this.userInfo.user_id,
+                user_nm: this.userInfo.user_nm,
+                voted: []
+            }
+            
+            this.bookX.comment_json.push(newComment)
+            this.bookX.total +=1;
+            this.bookX.rate_point = (((this.bookX.total-1)*parseInt(this.bookX.rate_point)+this.dataReviewPopup.commentStar)/this.bookX.total).toFixed(1);
+            commentAPI.updateComment({
+                comment_id: this.bookX.book_id,
+                comment_json: JSON.stringify(this.bookX.comment_json)
+            }).then(res => {
+                console.log(res)
+            }).catch(er => console.log(er))
+
             /* set lại giá trị mặc định cho dataReview */
             this.dataReviewPopup.commentStar = 1;
-            this.dataReviewPopup.commnetText = "";  
-            /* xử lý lưu comment */
+            this.dataReviewPopup.commentText = "";  
         },
         /**
          * Hàm xử lý khi click payent button
@@ -710,6 +866,19 @@ export default {
         },
 
         /**
+         * Hàm tiền xử lý dữ liệu
+         * Created by: thanhdt - 12.05.2021
+         */
+        earlyProcess2(){
+            this.dataCart.forEach(el => {
+                el.total = JSON.parse(el.comment_json).length;
+                el.rate_point = el.total?(JSON.parse(el.comment_json).map(it => it.star).reduce((a, b) => a+b)/el.total).toFixed(1) : 0;
+                el.comment_json = JSON.parse(el.comment_json);
+                console.log(el)
+            })
+        },
+
+        /**
          * Hàm format dữ liệu dạng ngày tháng
          * Created by: thanhdt - 12.05.2021
          */
@@ -723,6 +892,9 @@ export default {
             }
             if (type == 2) {
                 return `${mo} ${da}, ${ye}`
+            }
+            if(type == 3){
+                return `${mo} ${da} ${ye}`
             }
         },
         /**
@@ -778,9 +950,10 @@ export default {
         dataShoppingCart:{
             handler(val){
                 this.dataCart = val.cart_json;
+                this.earlyProcess2();
                 this.dataCartPopup = this.dataCart;
             }
-        }
+        },
     }
 }
 </script>
@@ -790,8 +963,15 @@ export default {
     min-width: 300px;
     max-width: 400px;
 }
+.form-text{
+    margin-top: 0 !important;
+    margin-bottom: 1rem;
+}
 </style>
 <style scoped lang="scss" >
+.card-body{
+    height: 389px;
+}
 * { margin: 0 !important; }
     .col-2{
         padding: 0;
@@ -803,7 +983,7 @@ export default {
         background-image: url("https://images.unsplash.com/photo-1512903491135-76ec8a4510b7?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1yZWxhdGVkfDd8fHxlbnwwfHx8fA%3D%3D&auto=format&fit=crop&w=600&q=60");
         // background-image: url("https://images.unsplash.com/photo-1514466256797-efd55fa1bf4e?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=663&q=80");
         background-size: 100vw;
-        background-repeat: no-repeat;
+        // background-repeat: no-repeat;
     }
     .isGenresFilter{
         padding: 30px 8% 30px 16%;
@@ -814,6 +994,12 @@ export default {
     }
     .shoping-cart-content{
         padding: 30px 15% 30px 20%;    
+        .no-data{
+            font-size: 28px;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+            color: #333333;
+            color: #fff;
+        }
     }
     .cart-payment-all{  
     
@@ -829,7 +1015,7 @@ export default {
         border: 1px solid #a2a2a2;
         background-color: #fff;
         position: relative;
-        left: 83.6%;
+        left: 84.4%;
         margin-bottom: 10px !important;
     }
     .cart-payment-all button:hover{
@@ -1412,8 +1598,78 @@ export default {
 
     /* Style cho trang profile */
     .profile-content{
-        padding: 30px 15% 30px 20%;    
+        // padding: 30px 15% 30px 20%;    
         height: 100%;
+        .profile-inside{
+            // height: calc(100vh - 60px);
+            height: calc(100vh - 31px);
+            background-color: #fff;
+            border-radius: 16px;
+            .p-background{
+                img{
+                    object-fit: cover;
+                    object-position: 0% 0%;
+                    // width: 1251px;
+                    width: 100%;
+                    height: 300px;
+                    border-radius: 16px 16px 0 0;
+                }
+            }
+            .p-content{
+                position: relative;
+                .p-avatar{
+                    height: 212px;
+                    width: 212px;
+                    position: absolute;
+                    border-radius: 50%;
+                    // left: calc(50% - 106px);
+                    left: 50px;
+                    top: -100px;
+                    padding: 6px;
+                    background-color: #fff;
+                    img{
+                        object-fit: cover;
+                        object-position: 0% 0%;
+                        width: 200px;
+                        height: 200px;
+                        border-radius: 50%;
+                    }
+                }
+                .p-text{
+                    position: absolute;
+                    left: 312px;
+                    width: calc(100% - 312px);
+                }
+                .p-under{
+                    position: absolute;
+                    top: 120px;
+                    right: calc(100% - 312px);
+                    width: 312px;
+                    display: flex;
+                    flex-direction: column;
+                    align-items: center;
+                    .p-name{
+                        font-size: 30px;
+                        font-weight: 500;
+                        line-height: 50px;
+                        overflow: hidden;
+                        white-space: nowrap;
+                        max-width: 250px;
+                        text-overflow: ellipsis;
+                    }
+                    .p-role{
+                        font-size: 24px;
+                        background-color: #005977;
+                        padding: 4px 24px;
+                        border-radius: 30px;
+                        color: #fff;
+                        font-weight: 400;
+                        vertical-align: center;
+                        margin-top: 10px !important;
+                    }
+                }
+            }
+        }
     }
 
 

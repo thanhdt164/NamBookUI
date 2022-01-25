@@ -5,15 +5,15 @@
         </div>
         <div class="center col-8">
             <ul>
-                <li @click="genresClicked" :class="[stateX=='book-by-genres'?'active':'', 'flex']"><a>Genres</a>
+                <li @click="genresClicked" :class="[stateX=='book-by-genres'?'active':'', 'flex']"><a>Thể loại</a>
                     <div class="drop-icon">
                         <font-awesome-icon icon="caret-down" class="caret-down"/>
                     </div>
                 </li>
                 <div class="vl"></div>
-                <li :class="[stateX=='home'?'active':'']" @click="changeHomeState"><a>Home</a></li>
-                <li :class="[stateX=='top-chart'?'active':'']" @click="ChangeTopChartState"><a>Top chart</a></li>
-                <li :class="[stateX=='new-arrivals'?'active':'']" @click="changeNewArrivalsState"><a>New arrivals</a></li>
+                <li :class="[stateX=='home'?'active':'']" @click="changeHomeState"><a>Trang chủ</a></li>
+                <li :class="[stateX=='top-chart'?'active':'']" @click="ChangeTopChartState"><a>Xếp hạng</a></li>
+                <li :class="[stateX=='new-arrivals'?'active':'']" @click="changeNewArrivalsState"><a>Mới cập nhật</a></li>
             </ul>
             <div :class="[isOpenGenresMenu?'genres-menu-enable':'', 'genres-menu']">
                 <div class="top-genres-menu">

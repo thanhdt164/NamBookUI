@@ -4,8 +4,8 @@
             <img src="https://www.gstatic.com/android/market_images/web/play_prism_hlock_2x.png" alt="">
         </div>
         <div class="search col-6">
-            <input type="text" placeholder="Search">
-            <button type="button" class="btn btn-primary" >
+            <input type="text" v-model="textSearch" placeholder="Tìm kiếm">
+            <button type="button" class="btn btn-primary" @click="searchClicked" >
                 <font-awesome-icon icon="search" class="icon-search"/>
             </button>
             
@@ -14,7 +14,7 @@
         <div class="avatar col-2">
             <div class="toggle">
                 <font-awesome-icon icon="shopping-cart" class="shopping-cart" @click="cartClicked"/>
-                <CBadge color="danger" class="mfs-auto" @click="cartClicked">{{2}}</CBadge>
+                <CBadge color="danger" class="mfs-auto" @click="cartClicked">!</CBadge>
             </div>
             <div class="img" >
                 <!-- <img id="id-avatar" src="https://lh3.googleusercontent.com/ogw/ADGmqu9HKP2aukmMBAbPzUiv7aM7E9WJ1sXtDvJr7iXm=s32-c-mo" alt=""> -->
@@ -26,11 +26,13 @@
 
 <script>
 import BDropdownHeader from '@/containers/BDropdownHeader.vue'
+import { Bus } from '@/main.js'
 export default {
     name: 'b-header',
     data(){
         return {
-            userInfoX : null
+            userInfoX : null, 
+            textSearch: null,
         }
     },
     components:{
@@ -54,6 +56,11 @@ export default {
         cartClicked(){
             this.$emit("cardClicked")
             this.$router.push({ name: 'shopping-cart'})
+        },
+        searchClicked(){
+            if(this.textSearch){
+                Bus.$emit("searchClicked", this.textSearch)
+            }
         }
     },
 }

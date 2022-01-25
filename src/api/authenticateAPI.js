@@ -8,7 +8,6 @@ class authenticateAPI extends baseAPI {
     authenticate(callback, userName, password) {
         return http.post(`${this.name}/Authenticate`, { userName: userName, password: password })
             .then(response => {
-                console.log(response)
                 callback ? callback(response.data) : true;
                 if (response.status === 200 && 'token' in response.body) {
                     this.$session.start()

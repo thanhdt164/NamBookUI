@@ -6,6 +6,7 @@
           :dataSource="dataSourceX"
           v-model="dataSourceX"
           :isGenresFilter="isGenresFilterX"
+          :isShowSeeMore="isShowSeeMoreX"
         ></b-content>
         <!-- Trang book-detail -->
         <b-content
@@ -21,6 +22,11 @@
           v-model="dataShoppingCartX"
           :isShoppingCart="isShoppingCartX"
           :dataShoppingCart="dataShoppingCartX"
+        ></b-content>
+        <!-- Trang Profile -->
+        <b-content
+          v-if="isProfile"
+          :isProfile="isProfile"
         ></b-content>
         <b-footer/>
     </div>
@@ -40,6 +46,7 @@ export default {
             dataBookX: null,
             bookX: null,
             isGenresFilterX: null,
+            isShowSeeMoreX: null,
             dataShoppingCartX: null,
             isShoppingCartX: null
         }
@@ -65,12 +72,20 @@ export default {
             type : Boolean,
             default: false
         },
+        isShowSeeMore: {
+            type : Boolean,
+            default: true
+        },
         dataShoppingCart: {
             type: [Object, Array],
             defalt: () => []
         },
         isShoppingCart:{
             type : Boolean,
+            default: false
+        },
+        isProfile:{
+            type: Boolean,
             default: false
         }
     },
@@ -109,6 +124,12 @@ export default {
         isGenresFilter: {
             handler(val){
                 this.isGenresFilterX = val;
+            },
+            immediate: true
+        },
+        isShowSeeMore: {
+            handler(val){
+                this.isShowSeeMoreX = val;
             },
             immediate: true
         },

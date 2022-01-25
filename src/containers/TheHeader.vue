@@ -16,10 +16,10 @@
     <CHeaderNav class="d-md-down-none mr-auto">
       <CHeaderNavItem class="px-3">
         <CHeaderNavLink to="/dashboard">
-          Dashboard
+          Bảng điều khiển
         </CHeaderNavLink>
       </CHeaderNavItem>
-      <CHeaderNavItem class="px-3">
+      <!-- <CHeaderNavItem class="px-3">
         <CHeaderNavLink to="/users" exact>
           Users
         </CHeaderNavLink>
@@ -28,7 +28,7 @@
         <CHeaderNavLink>
           Settings
         </CHeaderNavLink>
-      </CHeaderNavItem>
+      </CHeaderNavItem> -->
     </CHeaderNav>
     <CHeaderNav class="mr-4">
       <CHeaderNavItem class="d-md-down-none mx-2">
@@ -46,7 +46,9 @@
           <CIcon name="cil-envelope-open"/>
         </CHeaderNavLink>
       </CHeaderNavItem>
-      <BDropdownHeader/>
+      <BDropdownHeader
+        :userInfo="userInfo"
+      />
     </CHeaderNav>
     <CSubheader class="px-3">
       <CBreadcrumbRouter class="border-0 mb-0"/>
@@ -57,12 +59,25 @@
 <script>
 // import TheHeaderDropdownAccnt from './TheHeaderDropdownAccnt'
 import BDropdownHeader from '@/containers/BDropdownHeader.vue'
+import userAPI from '@/api/userAPI.js'
 
 export default {
   name: 'TheHeader',
   components: {
     // TheHeaderDropdownAccnt,
     BDropdownHeader
+  },
+  data(){
+    return{
+      userInfo: null,
+    }
+  },
+  created(){
+    let accountName = localStorage.getItem('acc-name')
+    userAPI.getUserInfo(accountName, (res)=>{
+        this.userInfo = res;
+        // this.getDataShoppingCart(this.userInfo.cart_id);
+    })
   }
 }
 </script>

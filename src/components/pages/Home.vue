@@ -9,6 +9,7 @@
               :dataSource="dataSource"
               v-model="dataSource"
               :isGenresFilter="isGenresFilter"
+              :isShowSeeMore="isShowSeeMore"
             ></b-container>
     </div>
 </template>
@@ -19,6 +20,7 @@ import BMenu from '@/components/common/BMenu.vue'
 import BContainer from '@/components/common/BContainer.vue'
 import bookAPI from '@/api/bookAPI.js'
 import userAPI from '@/api/userAPI.js'
+import { Bus } from '@/main.js'
 
 export default {
     name: 'home',
@@ -30,7 +32,8 @@ export default {
             /* Trang hiển thị là lọc theo genres không */
             isGenresFilter : false,
             pageName : 'home',
-            isCreate: false
+            isCreate: false,
+            isShowSeeMore: false,
         }
     },
     components: {
@@ -45,6 +48,9 @@ export default {
             this.userInfo = res
         })
         this.getDataSource();
+        Bus.$on('searchClicked', textSearch => {
+            this.searchClicked(textSearch);
+        })
     },
     methods: {
         /**
@@ -60,10 +66,10 @@ export default {
                         this.getHomeDataSource()
                         break
                     case 'top-chart':
-                        this.getHomeDataSource()
+                        this.getTopChartDataSource()
                         break
                     case 'new-arrivals':
-                        this.getHomeDataSource()
+                        this.getTopArrivalsDataSource()
                         break
                     case 'book-by-genres':
                         this.getBookByGenres()
@@ -110,7 +116,52 @@ export default {
          */
         getHomeDataSource(){
             this.isGenresFilter = false;
+            this.isShowSeeMore = false;
             bookAPI.getHomeBooks((res) => {
+                this.dataSource = res;
+            });
+        },
+        
+        /**
+         * Hàm xử lý api top chart
+         * Created
+         */
+        getTopChartDataSource(){
+            this.isGenresFilter = false;
+            this.isShowSeeMore = false;
+            bookAPI.getTopChart((res) => {
+                res[0].splice(0, 0, {
+                    genres_id: null,
+                    genres_nm: "Sách miễn phí"
+                })
+                res[1].splice(0, 0, {
+                    genres_id: null,
+                    genres_nm: "Sách có nhiều lượt xem"
+                })
+                res[2].splice(0, 0, {
+                    genres_id: null,
+                    genres_nm: "Sách có nhiều lượt mua"
+                })
+                // res[3].splice(0, 0, {
+                //     genres_id: null,
+                //     genres_nm: "Sách có đánh giá tốt"
+                // })
+                this.dataSource = res;
+            });
+        },
+
+        /**
+         * Hàm lấy dữ liệu sách mới cập nhật
+         * Created by: thanhdt - 01.05.2021
+         */
+        getTopArrivalsDataSource(){
+            this.isGenresFilter = true;
+            this.isShowSeeMore = false;
+            bookAPI.getTopArrivals((res) => {
+                res[0].splice(0, 0, {
+                    genres_id: null,
+                    genres_nm: "Sách mới cập nhật"
+                })
                 this.dataSource = res;
             });
         },
@@ -120,8 +171,25 @@ export default {
          */
         getBookByGenres(){
             this.isGenresFilter = true;
+            this.isShowSeeMore = false;
             let genresId = parseInt(this.$route.params.genresId);
             bookAPI.getBooksByGenresId2(genresId, (res) => {
+                this.dataSource = [res];
+            });
+        },
+        /**
+         * Tìm kiếm
+         */
+        searchClicked(textSearch){
+            this.isGenresFilter = true;
+            var param = {
+                stringSearch: textSearch
+            }
+            bookAPI.search(param, (res) => {
+                res.splice(0, 0, {
+                    genres_id: null,
+                    genres_nm: textSearch
+                })
                 this.dataSource = [res];
             });
         }

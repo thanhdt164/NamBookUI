@@ -32,7 +32,7 @@
                 <div class="rit-top-right flex">
                     <div class="like col-6 p-0">
                         <div class="icon-like">
-                            <font-awesome-icon icon="thumbs-up" class="thumbs-up"/>
+                            <font-awesome-icon icon="thumbs-up" :class="{'color':commentX.voted.includes(userInfo.user_id)}" @click="voteClicked" class="thumbs-up"/>
                         </div>
                         <div class="like-count">{{commentX.voted && commentX.voted.length ?commentX.voted.length:0}}</div>
                     </div>
@@ -52,6 +52,7 @@
 </template>
 
 <script>
+import commentAPI from '@/api/commentAPI.js'
 export default {
     name: 'b-review-item',
     data(){
@@ -63,6 +64,14 @@ export default {
         comment:{
             type: Object,
             default: () => {}
+        },
+        userInfo:{
+            type: Object,
+            default: () => {}
+        },
+        bookX:{
+            type: Object,
+            default: () => {}
         }
     },
     watch:{
@@ -70,7 +79,8 @@ export default {
             handler(val){
                 this.commentX = val
                 this.preProcess();
-            }
+            },
+            immediate: true
         }
     },
     created(){
@@ -99,6 +109,50 @@ export default {
             if (type == 2) {
                 return `${mo} ${da}, ${ye}`
             }
+        },
+        voteClicked(){
+            if(this.userInfo.user_id == this.commentX.user_id){
+                // Comment của tài khoản đang đăng nhập
+            }else{
+                if(!this.commentX.voted.includes(this.userInfo.user_id)){
+                // Chưa like
+                this.commentX.voted.push(this.userInfo.user_id)
+                // Cập nhật
+                this.handleComment();
+            }else{
+                // Like rồi
+            }
+            }
+        },
+        /**
+         * Hàm xử lý khi submit comment
+         * Created by: thanhdt - 15.05.2021
+         */
+        handleComment(){
+            /* xử lý lưu comment */
+            // var newComment = {
+            //     comment_date: new Date(),
+            //     comment_date_name: null,
+            //     content: this.dataReviewPopup.commentText,
+            //     star: this.dataReviewPopup.commentStar,
+            //     user_avatar: this.userInfo.user_avatar,
+            //     user_id: this.userInfo.user_id,
+            //     user_nm: this.userInfo.user_nm,
+            //     voted: this.commentX.voted
+            // }
+            
+            // this.bookX.comment_json.push(newComment)
+            // this.bookX.total +=1;
+            // this.bookX.rate_point = (((this.bookX.total-1)*parseInt(this.bookX.rate_point)+this.dataReviewPopup.commentStar)/this.bookX.total).toFixed(1);
+            console.log(this.bookX.comment_json);
+            commentAPI.updateComment({
+                comment_id: this.bookX.book_id,
+                comment_json: JSON.stringify(this.bookX.comment_json)
+            }).then(res => {
+                console.log(res)
+            }).catch(er => console.log(er))
+
+           
         },
     }
 }
@@ -241,5 +295,9 @@ export default {
   padding: 0;
   display: flex;
   z-index: 0;
+}
+
+.color{
+    color: #039BE6;
 }
 </style>

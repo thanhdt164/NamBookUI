@@ -8,15 +8,15 @@
                 <a>{{dataX.book_nm}}</a>   
             </div>
             <div class="author">
-                <a href="">{{dataX.author_nm}}</a>
+                <a href="">{{dataX.author_nm?dataX.author_nm:'.'}}</a>
             </div>
             <div class="price">
-                {{formatCurrency(dataX.price)}}
+                {{dataX.price>0?formatCurrency(dataX.price):"."}}
             </div>
             <div class="rate">
                 <div class="star col-6">
                     <div class="rating">
-                        <div class="rating-upper" :style="`width: ${dataX.rate_point*20}%`">
+                        <div class="rating-upper" :style="`width: ${parseFloat(dataX.rate_point*20)}%`">
                             <span>★</span>
                             <span>★</span>
                             <span>★</span>
@@ -32,7 +32,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="real-price col-6" @click="realPriceClicked(dataX)" >{{formatCurrency(dataX.price * (1-dataX.sale))}}</div>
+                <div class="real-price col-6" @click="realPriceClicked(dataX)" >{{dataX.price>0?formatCurrency(dataX.price * (1-dataX.sale)):"Miễn phí"}}</div>
             </div>
         </div>
     </div>
@@ -65,6 +65,9 @@ export default {
                 this.dataX = val;
                 this.dataX.total = JSON.parse(this.dataX.comment_json).length;
                 this.dataX.rate_point = this.dataX.total?(JSON.parse(this.dataX.comment_json).map(el => el.star).reduce((a, b) => a+b)/this.dataX.total).toFixed(1) : 0;
+                // if(this.dataX.book_nm == 'World of Warcraft: Chronicle Volume 2'){
+                //     console.log(this.dataX)
+                // }
             },
             immediate: true
         }
@@ -121,7 +124,7 @@ export default {
         justify-content: space-around;
     }
     .img:hover{
-         filter: grayscale(100%);
+         /* filter: grayscale(100%); */
          cursor: pointer;
          background-color: gray;
     }
@@ -130,7 +133,8 @@ export default {
         transition: transform .5s ease
     }
     .img img:hover{
-        transform: scale(1.08);
+        /* transform: scale(1.08); */
+        transform: scale(1.1);
         /* border: 2px solid #fff; */
         box-shadow: 1px 2px #D5D5D5;
     }

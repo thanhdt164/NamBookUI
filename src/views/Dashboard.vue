@@ -1,17 +1,19 @@
 <template>
   <div>
-    <WidgetsDropdown/>
- <!-- Revenue and Spending -->
+    <!-- <WidgetsDropdown/> -->
+ <!-- Khoản thu vào khoản chi -->
     <CCard>
       <CCardBody>
         <CRow>
-          <CCol sm="5">
-            <h4 id="traffic" class="card-title mb-0">Revenue and Spending (Khoản thu và chi)</h4>
-            <div class="small text-muted">This {{reportType=="Month"?'Month':'Year'}} ({{new Date()}})</div>
+          <CCol sm="4">
+            <h4 id="traffic" class="card-title mb-0">Khoản chi và Khoản thu</h4>
+            <div class="small text-muted">Thống kê theo {{reportType=="Month"?'Tháng':'Năm'}} ({{formatDate(new Date(), 1)}})</div>
           </CCol>
-          <CCol sm="7" class="d-none d-md-block">
-            <CButton color="primary" class="float-right">
-              <CIcon name="cil-cloud-download"/>
+          <CCol sm="8" class="d-none d-md-block">
+            <CButton 
+              @click="getDataRevenueAndSpending"
+              color="primary" class="float-right">
+              <CIcon name="cil-arrow-right"/>
             </CButton>
             <CButtonGroup class="float-right mr-3">
               <CButton
@@ -25,6 +27,15 @@
                 {{value}}
               </CButton>
             </CButtonGroup>
+            <CInput
+              v-if="reportType == 'Month'"
+              label="Tháng"
+              horizontal
+              type="number"
+              v-model="monthReport" 
+              class="float-right mr-3"
+              @update:value="changeMonthReport"
+            />
           </CCol>
         </CRow>
         <MainChartExample 
@@ -37,8 +48,8 @@
       <CCardFooter>
         <CRow class="text-center">
           <CCol md sm="12" class="mb-sm-2 mb-0">
-            <div class="text-muted">ToTal Spending</div>
-            <strong>{{superTotalSpending}} Vnd ({{Math.round(100*superTotalSpending/(superTotalSpending+superTotalRevenue))}}%)</strong>
+            <div class="text-muted">Tổng nhập</div>
+            <strong>{{formatCurrency(superTotalSpending)}} ({{Math.round(100*superTotalSpending/(superTotalSpending+superTotalRevenue))}}%)</strong>
             <CProgress
               class="progress-xs mt-2"
               :precision="1"
@@ -47,8 +58,8 @@
             />
           </CCol>
           <CCol md sm="12" class="mb-sm-2 mb-0 d-md-down-none">
-            <div class="text-muted">Total Real Revenue</div>
-            <strong>{{superTotalRevenue}} Vnd ({{Math.round(100*superTotalRevenue/(superTotalSpending+superTotalRevenue))}}%)</strong>
+            <div class="text-muted">Tổng bán</div>
+            <strong>{{formatCurrency(superTotalRevenue)}} ({{Math.round(100*superTotalRevenue/(superTotalSpending+superTotalRevenue))}}%)</strong>
             <CProgress
               class="progress-xs mt-2"
               :precision="1"
@@ -65,13 +76,13 @@
       <CCardHeader>
         <CRow>
           <CCol md="8">
-            <h3>Top books sold</h3>
+            <h3>Top sách bán chạy</h3>
           </CCol>
           <CCol md="3">
             <CRow>
               <CCol  >
                 <CInput
-                  label="From Date"
+                  label="Từ ngày"
                   type="date"
                   horizontal
                   v-model="paramTopBookSold.fromTime"
@@ -81,7 +92,7 @@
             <CRow>
               <CCol >
                 <CInput
-                  label="To Date"
+                  label="Đến ngày"
                   type="date"
                   horizontal
                   v-model="paramTopBookSold.toTime"
@@ -89,19 +100,21 @@
               </CCol>
             </CRow>
           </CCol>
-          <CCol col="1" class="mb-3 mb-xl-0">
-            <CButton block color="primary" @click="getDataTopBookSold">Submit</CButton>
+          <CCol col="1" class="mb-3 mb-xl-0 ">
+            <CButton block color="primary" @click="getDataTopBookSold">
+              Gửi đi
+            </CButton>
           </CCol>
         </CRow>
       </CCardHeader>
       <CCardBody>
         <!-- Row 1 -->
         <CRow v-for="(book, id) in dataTopBookSold" :key="id" v-model="dataTopBookSold">
-          <CCol sm="12" lg="12">
+          <CCol sm="12" lg="12" v-if="dataBookImportX[id]">
             <CWidgetProgress
               :header="book.book_nm"
-              text="G. Wakeling"
-              footer="Selective Entertainment LLC"
+              :text="book.author_nm"
+              :footer="book.publisher_nm"
               color="gradient-info"
             >
               <CRow>
@@ -112,25 +125,26 @@
                   <CRow>
                     <CCol col="12" sm="12" lg="6">
                       <CWidgetDropdown
-                        :header="`${120} Views - ${15} Comments`"
+                        :header="`${book.view} Lượt xem - ${JSON.parse(book.comment_json).length} Bình luận`"
                         text="."
                         color="gradient-success"
                         inverse
                       />
                       <CWidgetProgress
-                        :header="`REVENUE : ${formatCurrency(book.total_revenue)}`"
-                        :text="`IMPORT COST : ${formatCurrency(dataBookImportX[id].total_spending)}`"
+                        :header="`Tổng giá bán : ${formatCurrency(book.total_revenue)} (${(book.total_revenue==0?0: (dataBookImportX[id].total_spending==0?100: (book.total_revenue/dataBookImportX[id].total_spending*100))).toFixed(2)}%)`"
+                        :text="`Tổng giá nhập : ${formatCurrency(dataBookImportX[id].total_spending)}`"
                         color="gradient-warning"
                         inverse
-                        :value="67.2"
+                        :value="book.total_revenue/dataBookImportX[id].total_spending*100"
                       />
                     </CCol>
                     <CCol col="12" sm="12" lg="6">
                       <CWidgetProgressIcon
-                        :header="`Sold Count : ${book.sold_count}`"
-                        :text="`Import Count : ${dataBookImportX[id].import_count}`"
+                        :header="`Số lượng bán : ${book.sold_count} (${(book.sold_count == 0? 0 : (dataBookImportX[id].import_count == 0 ?100:(book.sold_count/dataBookImportX[id].import_count*100))).toFixed(2)}%)`"
+                        :text="`Số lượng nhập : ${dataBookImportX[id].import_count}`"
                         color="gradient-primary"
                         inverse
+                        :value="book.sold_count/dataBookImportX[id].import_count*100"
                       >
                         <CIcon name="cil-chartPie" height="36"/>
                       </CWidgetProgressIcon>
@@ -155,7 +169,7 @@
 
 <script>
 import MainChartExample from './charts/MainChartExample'
-import WidgetsDropdown from './widgets/WidgetsDropdown'
+// import WidgetsDropdown from './widgets/WidgetsDropdown'
 import dashboardAPI from '@/api/dashboardAPI.js'
 import moment from 'moment'
 // import WidgetsBrand from './widgets/WidgetsBrand'
@@ -165,7 +179,7 @@ export default {
   name: 'Dashboard',
   components: {
     MainChartExample,
-    WidgetsDropdown,
+    // WidgetsDropdown,
     // WidgetsBrand,
     // CChartLineSimple,
     // CChartBarSimple
@@ -174,17 +188,18 @@ export default {
     return {
       dataTopBookSold : null,
       paramTopBookSold: {
-        fromTime: '2021-05-01',
-        toTime: '2021-06-30',
+        fromTime: '2021-08-01',
+        toTime: '2021-08-31',
         top: 5
       },
       dataBookImport: null,
       dataBookImportX: [],
       paramBookImport: {
-        fromTime: '2021-05-01',
-        toTime: '2021-06-30'
+        fromTime: '2021-08-01',
+        toTime: '2021-08-31'
       },
       reportType: 'Month',
+      monthReport: 8,
       dataRevenue: [], 
       dataSpending: [],
       label: [],
@@ -194,10 +209,19 @@ export default {
     }
   },
   created(){
-    this.getDataTopBookSold();
+    setTimeout(() => {
+      this.getDataTopBookSold();
+    }, 0);
     this.getDataRevenueAndSpending();
   },
   methods: {
+    changeMonthReport(val){
+      if(val>12){
+        this.monthReport = 12;
+      }else if(val<1){
+        this.monthReport = 1;
+      }
+    },
     /**
      * Hàm format tiền tệ
      */
@@ -210,7 +234,7 @@ export default {
 
     changeReportType(value){
       this.reportType = value;
-      this.getDataRevenueAndSpending();
+      // this.getDataRevenueAndSpending();
     },
     getDataTopBookSold(){
       if (this.paramTopBookSold.fromTime <= this.paramTopBookSold.toTime){
@@ -251,8 +275,13 @@ export default {
      * Created by: thanhdt - 22.05.2021
      */
     getReportByMonth(){
-      let startOfMonth = moment().startOf('month').toDate();
-      let endOfMonth = moment().endOf('month').toDate();
+      var now = new Date()
+      var year = now.getFullYear();
+      var month = this.monthReport;
+      var date = 1;
+      var d = new Date(`${year}-${month}-${date}`);
+      let startOfMonth = moment(d).startOf('month').toDate();
+      let endOfMonth = moment(d).endOf('month').toDate();
       let monthText = new Intl.DateTimeFormat('en', { month: 'short' }).format(endOfMonth);
       /* custom Lable */
       this.label = []
@@ -275,11 +304,16 @@ export default {
      * Created by: thanhdt - 22.05.2021
      */
     getReportByYear(){
-      let startOfYear = moment().startOf('year').toDate();
-      let endOfYear = moment().endOf('year').toDate();
+      var now = new Date()
+      var year = now.getFullYear();
+      var month = this.monthReport;
+      var date = 1;
+      var d = new Date(`${year}-${month}-${date}`);
+      let startOfYear = moment(d).startOf('year').toDate();
+      let endOfYear = moment(d).endOf('year').toDate();
       // let yearText = new Intl.DateTimeFormat('en', { year: 'numeric' }).format(endOfYear);
       /* custom Lable */
-      this.label = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'July', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
+      this.label = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
       /* Gọi api lấy dữ liệu */
       let fromDate = this.formatDate(startOfYear, 3);
       let toDate = this.formatDate(endOfYear, 3);
@@ -290,7 +324,9 @@ export default {
         this.convertDataSpendindAndRevenue();
       }, 200); 
     },
-
+    /**
+     * Hàm xử lý dữ liệu trước khi truyền lên chart
+     */
     convertDataSpendindAndRevenue(){
       var me = this;
       if(this.reportType == 'Month'){
@@ -323,16 +359,21 @@ export default {
         })
         this.dataSpending.sort((a, b) => {return me.label.indexOf(a.Month) - me.label.indexOf(b.Month)})
         this.dataRevenue.sort((a, b) => {return me.label.indexOf(a.Month) - me.label.indexOf(b.Month)})
+        console.log(this.dataSpending,  this.dataRevenue)
       }
 
       /* Gán giá trị cho superTotalSpending vs superTotalRevenue */
-      me.superTotalSpending = parseFloat(me.dataSpending.reduce(function(prev, cur) {
+      me.superTotalSpending = parseInt(me.dataSpending.reduce(function(prev, cur) {
         return prev + cur.TotalSpending;
-      }, 0).toFixed(3));
-      me.superTotalRevenue = parseFloat(me.dataRevenue.reduce(function(prev, cur) {
+      }, 0).toFixed(0));
+      me.superTotalRevenue = parseInt(me.dataRevenue.reduce(function(prev, cur) {
         return prev + cur.TotalRealRevenue;
-      }, 0).toFixed(3));
+      }, 0).toFixed(0));
     },
+
+    /**
+     * 
+     */
     formatDate(date, type){
             date = new Date(date)
             let ye = new Intl.DateTimeFormat('en', { year: 'numeric' }).format(date)

@@ -21,6 +21,8 @@ import store from './store'
 import VueSession from 'vue-session'
 Vue.use(VueSession)
 
+export const Bus = new Vue()
+
 Vue.config.performance = true
 Vue.use(CoreuiVue)
 Vue.prototype.$log = console.log.bind(console)
@@ -50,12 +52,13 @@ import {
     faCheckSquare,
     faCartArrowDown,
     faSquare,
-    faTimesCircle
+    faTimesCircle,
+    faTrash
 } from '@fortawesome/free-solid-svg-icons'
 import { faJs, faVuejs } from '@fortawesome/free-brands-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 library.add(faUserSecret, faCaretDown, faBars, faUser, faThumbsUp, faTh, faEllipsisV, faInfoCircle,
-    faPen, faCreditCard, faSearch, faShoppingCart, faCheckSquare, faCartArrowDown, faSquare, faTimesCircle, faJs, faVuejs)
+    faPen, faCreditCard, faSearch, faShoppingCart, faCheckSquare, faCartArrowDown, faSquare, faTimesCircle, faTrash, faJs, faVuejs)
 Vue.component('font-awesome-icon', FontAwesomeIcon)
 
 

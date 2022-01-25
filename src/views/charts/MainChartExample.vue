@@ -59,20 +59,20 @@ export default {
 
       return [
         {
-          label: 'Spending',
+          label: 'Tổng nhập',
           backgroundColor: hexToRgba(brandInfo, 10),
           borderColor: brandInfo,
           pointHoverBackgroundColor: brandInfo,
           borderWidth: 2,
-          data: this.dataSpending.map(el => this.formatCurrency(el.TotalSpending))
+          data: this.dataSpending.map(el => el.TotalSpending)
         },
         {
-          label: 'Real Revenue',
+          label: 'Tổng bán',
           backgroundColor: 'transparent',
           borderColor: brandSuccess,
           pointHoverBackgroundColor: brandSuccess,
           borderWidth: 2,
-          data: this.dataRevenue.map(el => this.formatCurrency(el.TotalRealRevenue))
+          data: this.dataRevenue.map(el => el.TotalRealRevenue)
         }
       ]
     },

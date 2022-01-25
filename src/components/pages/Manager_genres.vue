@@ -29,7 +29,7 @@
             size="sm"
             @click="toggleDetails(item, index)"
           >
-            {{Boolean(item._toggled) ? 'Hide' : 'Show'}}
+            {{Boolean(item._toggled) ? 'Ẩn' : 'Hiện'}}
           </CButton>
         </td>
       </template>
@@ -62,7 +62,7 @@
   </CCardBody>
   </CCard>
 
-  <CRow>
+  <!-- <CRow>
       <CCol md="12">
         <CCard>
           <CCardHeader>
@@ -132,7 +132,7 @@
           </CCardFooter>
         </CCard>
       </CCol>
-    </CRow>
+    </CRow> -->
 
   </div>
 </template>
@@ -192,27 +192,43 @@ export default {
       })
     },
     setItems(res){
-      this.items = res.map((item, id) => { return {...item, id}});
+      this.items = res.map((item, id) => { 
+        Object.keys(item).forEach(key => {
+          if(key == "created_at" || key.indexOf('date') != -1){
+            item[key] = this.formatDate(item[key], 4);
+          }
+          if(item[key] == null) item[key] = "";
+          if(key.includes('price')){
+            item[key] = this.formatCurrency(item[key])
+          }
+        })
+        return {...item, id}
+      });
     },
     setFields(res){
       let ignoreFields = ["updated_at", "deleted_at", "avatar", "detail", "description", "subtitle", "images", "pages", "language"]
+      let keyvalue = {
+        genres_nm: "Tên thể loại",
+        created_at: "Ngày tạo",
+
+      }
       this.fields = []
       Object.keys(res[0]).forEach(it => {
         if(!ignoreFields.includes(it) && it.indexOf('id') == -1){
           this.fields.push({
             key: it,
+            label: keyvalue[it]?keyvalue[it]:it,
             _style:'min-width:100px;'
           })
         }
       })
-      this.fields.push({ 
-          key: 'show_details', 
-          label: '', 
-          _style: 'width:1%', 
-          sorter: false, 
-          filter: false
-        })
-        // console.log(this.fields)
+      // this.fields.push({ 
+      //     key: 'show_details', 
+      //     label: '', 
+      //     _style: 'width:1%', 
+      //     sorter: false, 
+      //     filter: false
+      //   })
     },
 
 
@@ -241,7 +257,43 @@ export default {
     },
     validator (val) {
       return val ? val.length >= 4 : false
-    }
+    },
+    /**
+     * Hàm format dữ liệu dạng ngày tháng
+     * Created by: thanhdt - 12.05.2021
+     */
+    formatDate(date, type){
+        date = new Date(date)
+        let ye = new Intl.DateTimeFormat('en', { year: 'numeric' }).format(date)
+        let mo = new Intl.DateTimeFormat('en', { month: 'short' }).format(date)
+        let da = new Intl.DateTimeFormat('en', { day: '2-digit' }).format(date)
+        let year = date.getFullYear();
+        let month = date.getMonth()+1;
+        if(month<10){
+          month = '0' + month;
+        }
+        if (type == 1) {
+            return `${mo} ${ye}`
+        }
+        if (type == 2) {
+            return `${mo} ${da}, ${ye}`
+        }
+        if(type == 3){
+            return `${mo} ${da} ${ye}`
+        }
+        if(type == 4){
+          return `${year}-${month}-${da}`
+        }
+    },
+      /**
+     * Hàm format tiền tệ
+     */
+    formatCurrency(val){
+        return Intl.NumberFormat('vi-VN', {
+            style: 'currency',
+            currency: 'VND',
+        }).format(val)
+    },
   }
 }
 </script>

@@ -13,13 +13,13 @@
       sorter
       pagination
     >
-      <template #status="{item}" >
+      <!-- <template #status="{item}" >
         <td>
           <CBadge :color="getBadge(item.status)">
-            {{item.status}}
+            {{item.status=='Paid'?'Đã thanh toán':'Chưa thanh toán'}}
           </CBadge>
         </td>
-      </template>
+      </template> -->
       <template #show_details="{item, index}">
         <td class="py-2">
           <CButton
@@ -29,7 +29,7 @@
             size="sm"
             @click="toggleDetails(item, index)"
           >
-            {{Boolean(item._toggled) ? 'Hide' : 'Show'}}
+            {{Boolean(item._toggled) ? 'Ẩn' : 'Hiện'}}
           </CButton>
         </td>
       </template>
@@ -41,23 +41,23 @@
                   <CCol col="1.7">
                     <img :src="ele.book_avatar" alt="">
                   </CCol>
-                  <CCol col="3">
+                  <CCol col="6">
                     <h4>
                       {{ele.book_nm}}
                     </h4>
 
-                    <p>Amount: {{ele.amount}}</p>
-                    <p>Price: {{ele.price}} đ</p>
-                    <p>Sale: {{ele.sale}} (%)</p>
-                    <p>Multi price: {{ele.multi_price}} đ</p>
+                    <p>Số lượng mua: {{ele.amount}}</p>
+                    <p>Giá sách: {{ele.price}} đ</p>
+                    <p>Giảm giá: {{ele.sale}} (%)</p>
+                    <p>Tổng giá: {{ele.multi_price}} đ</p>
                   </CCol>
                   <CCol col="">
                   </CCol>
                   <CCol col="1">
                     <p class="text-muted" style="height: 100px"></p>
-                    <CButton size="sm" color="danger" class="ml-1">
+                    <!-- <CButton size="sm" color="danger" class="ml-1">
                       Delete
-                    </CButton>
+                    </CButton> -->
                   </CCol>
               </CRow>
             </CMedia>
@@ -144,22 +144,43 @@ export default {
               })
               id += 1
             })
-            console.log(resX)
             me.setItems(resX)
             me.setFields(resX)
         }
-      },50);
+      },200);
     },
     setItems(res){
-      this.items = res.map((item, id) => { return {...item, id}});
+      this.items = res.map((item, id) => { 
+        Object.keys(item).forEach(key => {
+          if(key == "created_at" || key.indexOf('date') != -1){
+            item[key] = this.formatDate(item[key], 4);
+          }
+          if(item[key] == null) item[key] = "";
+          if(key.includes('price')){
+            item[key] = this.formatCurrency(item[key])
+          }
+        })
+        return {...item, id}
+      });
     },
     setFields(res){
-      let ignoreFields = ["updated_at", "deleted_at", "books", "avatar", "description", "subtitle", "images", "pages", "language"]
+      let ignoreFields = ["updated_at", "deleted_at", "books", "avatar", "description", "subtitle", "images", "pages", "language", 'status']
+      let keyvalue = {
+        user_nm: "Người dùng",
+        orders_date: "Ngày mua",
+        orders_sale: "Giảm giá",
+        total_price: "Tổng giá",
+        real_price: "Thành tiền",
+        status: "Trạng thái",
+        created_at: "Ngày tạo",
+
+      }
       this.fields = []
       Object.keys(res[0]).forEach(it => {
         if(!ignoreFields.includes(it) && it.indexOf('id') == -1){
           this.fields.push({
             key: it,
+            label: keyvalue[it]?keyvalue[it]:it,
             _style:'min-width:100px;'
           })
         }
@@ -203,7 +224,43 @@ export default {
     },
     validator (val) {
       return val ? val.length >= 4 : false
-    }
+    },
+    /**
+     * Hàm format dữ liệu dạng ngày tháng
+     * Created by: thanhdt - 12.05.2021
+     */
+    formatDate(date, type){
+        date = new Date(date)
+        let ye = new Intl.DateTimeFormat('en', { year: 'numeric' }).format(date)
+        let mo = new Intl.DateTimeFormat('en', { month: 'short' }).format(date)
+        let da = new Intl.DateTimeFormat('en', { day: '2-digit' }).format(date)
+        let year = date.getFullYear();
+        let month = date.getMonth()+1;
+        if(month<10){
+          month = '0' + month;
+        }
+        if (type == 1) {
+            return `${mo} ${ye}`
+        }
+        if (type == 2) {
+            return `${mo} ${da}, ${ye}`
+        }
+        if(type == 3){
+            return `${mo} ${da} ${ye}`
+        }
+        if(type == 4){
+          return `${year}-${month}-${da}`
+        }
+    },
+      /**
+     * Hàm format tiền tệ
+     */
+    formatCurrency(val){
+        return Intl.NumberFormat('vi-VN', {
+            style: 'currency',
+            currency: 'VND',
+        }).format(val)
+    },
   }
 }
 </script>

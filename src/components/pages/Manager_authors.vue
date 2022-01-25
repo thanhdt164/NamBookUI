@@ -29,7 +29,7 @@
             size="sm"
             @click="toggleDetails(item, index)"
           >
-            {{Boolean(item._toggled) ? 'Hide' : 'Show'}}
+            {{Boolean(item._toggled) ? 'Ẩn' : 'Hiện'}}
           </CButton>
         </td>
       </template>
@@ -46,14 +46,14 @@
                       {{item.author_nm}}
                     </h4>
                   </CCol>
-                  <CCol col="">
-                     <p style="text-align: justify;"><b>Author about:</b> {{item.author_about}}</p>
+                  <CCol col="6">
+                     <p style="text-align: justify;"><b>Chi tiết thông tin:</b> {{item.author_about}}</p>
                   </CCol>
-                  <CCol col="2">
+                  <CCol col="">
                     <p class="text-muted" style="height: 40%"></p>
-                    <CButton size="sm" color="danger" class="ml-1">
+                    <!-- <CButton size="sm" color="danger" class="ml-1">
                       Delete
-                    </CButton>
+                    </CButton> -->
                   </CCol>
               </CRow>
             </CMedia>
@@ -64,7 +64,7 @@
   </CCardBody>
   </CCard>
 
-  <CRow>
+  <!-- <CRow>
       <CCol md="12">
         <CCard>
           <CCardHeader>
@@ -134,7 +134,7 @@
           </CCardFooter>
         </CCard>
       </CCol>
-    </CRow>
+    </CRow> -->
 
   </div>
 </template>
@@ -194,16 +194,29 @@ export default {
       })
     },
     setItems(res){
-      this.items = res.map((item, id) => { return {...item, id}});
+      this.items = res.map((item, id) => { 
+        Object.keys(item).forEach(key => {
+          if(key == "created_at" || key.indexOf('date') != -1){
+            item[key] = this.formatDate(item[key], 2);
+          }
+          if(item[key] == null) item[key] = "";
+        })
+        return {...item, id}}
+      );
     },
     setFields(res){
       let ignoreFields = ["updated_at", "deleted_at", "bg_image", "author_about", "avatar", "description", "subtitle", "images", "pages", "language"]
+      let keyvalue = {
+        author_nm: "Tên tác giả",
+        created_at: "Ngày tạo" 
+      }
       this.fields = []
       Object.keys(res[0]).forEach(it => {
         if(!ignoreFields.includes(it) && it.indexOf('id') == -1){
           this.fields.push({
             key: it,
-            _style:'min-width:100px;'
+            label: keyvalue[it]?keyvalue[it]:it,
+            _style:'min-width:auto;'
           })
         }
       })
@@ -214,7 +227,6 @@ export default {
           sorter: false, 
           filter: false
         })
-        // console.log(this.fields)
     },
 
 
@@ -243,7 +255,44 @@ export default {
     },
     validator (val) {
       return val ? val.length >= 4 : false
-    }
+    },
+    
+    /**
+     * Hàm format dữ liệu dạng ngày tháng
+     * Created by: thanhdt - 12.05.2021
+     */
+    formatDate(date, type){
+        date = new Date(date)
+        let ye = new Intl.DateTimeFormat('en', { year: 'numeric' }).format(date)
+        let mo = new Intl.DateTimeFormat('en', { month: 'short' }).format(date)
+        let da = new Intl.DateTimeFormat('en', { day: '2-digit' }).format(date)
+        let year = date.getFullYear();
+        let month = date.getMonth()+1;
+        if(month<10){
+          month = '0' + month;
+        }
+        if (type == 1) {
+            return `${mo} ${ye}`
+        }
+        if (type == 2) {
+            return `${mo} ${da}, ${ye}`
+        }
+        if(type == 3){
+            return `${mo} ${da} ${ye}`
+        }
+        if(type == 4){
+          return `${year}-${month}-${da}`
+        }
+    },
+      /**
+     * Hàm format tiền tệ
+     */
+    formatCurrency(val){
+        return Intl.NumberFormat('vi-VN', {
+            style: 'currency',
+            currency: 'VND',
+        }).format(val)
+    },
   }
 }
 </script>

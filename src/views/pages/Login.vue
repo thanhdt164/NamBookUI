@@ -44,11 +44,12 @@
             >
               <CCardBody>
                 <h2>Sign up</h2>
-                <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>
+                <p></p>
                 <CButton
                   color="light"
                   variant="outline"
                   size="lg"
+                  @click="onRegister"
                 >
                   Register Now!
                 </CButton>
@@ -91,6 +92,10 @@ export default {
         
         
       }
+    },
+
+    onRegister(){
+      this.$router.push({ name: 'Register'})
     }
   },
 }

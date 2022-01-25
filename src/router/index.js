@@ -2,6 +2,7 @@ import Vue from 'vue'
 import Home from '@/components/pages/Home.vue'
 import BookDetail from '@/components/pages/BookDetail.vue'
 import ShoppingCart from '@/components/pages/BShoppingCart.vue'
+import Profile from '@/components/pages/BProfile.vue'
 // Containers
 const TheContainer = () =>
     import ('@/containers/TheContainer')
@@ -158,6 +159,11 @@ const router = new Router({
             path: '/DTTBook/shopping-cart',
             name: 'shopping-cart',
             component: ShoppingCart,
+        },
+        {
+            path: '/DTTBook/profile',
+            name: 'Profile',
+            component: Profile,
         },
 
 

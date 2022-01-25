@@ -113,7 +113,6 @@ export default {
       transactionHistoryAPI.getAll((res) => {
         me.setItems(res)
         me.setFields(res)
-        // console.log(Object.keys(res[0]))
       })
     },
     setItems(res){
@@ -137,7 +136,6 @@ export default {
           sorter: false, 
           filter: false
         })
-        // console.log(this.fields)
     },
 
 

@@ -10,17 +10,12 @@
                 @click="bookClicked(dataBookItemX.book_id)" 
                 :title="dataBookItemX.book_nm"
             >{{dataBookItemX.book_nm}}</div>
-            <div class="author">{{dataBookItemX.author_nm}}</div>
-            <div class="summary">That's a bold claim, given there are already thousands of finance books on the shelves.
-                So what makes this one different?
-                Well, you won't be overwhelmed with a bunch of 'tips' ... or a strict budget (that youwon't follow).
-                You'll get a step-by-step formula: open this account, then do this; call this person, and say this; invest money here, and not there. All with a glass of wine in your hand.
-                This book will show you how to create an entire financial plan that is so simple you can sketch it on the back of a serviette ... and you'll be able to manage your money in 10 minutes a week.
-            </div>
+            <div class="author">{{dataBookItemX.author_nm?dataBookItemX.author_nm:'.'}}</div>
+            <div class="summary">{{dataBookItemX.description}}</div>
             <div class="bot">
                 <div class="star col-4">
                     <div class="rating">
-                        <div class="rating-upper" style="width: 67%">
+                        <div class="rating-upper" :style="`width: ${parseFloat(dataBookItemX.rate_point*20)}%`">
                             <span>★</span>
                             <span>★</span>
                             <span>★</span>
@@ -37,8 +32,8 @@
                     </div>
                 </div>
                 <div class="flex">
-                    <div class="price">₫806,698</div>
-                    <div class="real-price">₫564,689</div>
+                    <div class="price">{{dataBookItemX.price>0?formatCurrency(parseInt(dataBookItemX.price)):"."}}</div>
+                    <div class="real-price">{{dataBookItemX.price>0?formatCurrency(parseInt(dataBookItemX.price * (1-dataBookItemX.sale))):"Miễn phí"}}</div>
                 </div>
             </div>
         </div>
@@ -82,6 +77,22 @@ export default {
             // }, 0); 
             this.$router.push({ name: 'book-detail', params: {bookId: bookId } })
             this.$emit('bookClicked');
+        },
+        /**
+         * Hàm format tiền tệ
+         */
+        formatCurrency(val){
+            return Intl.NumberFormat('vi-VN', {
+                style: 'currency',
+                currency: 'VND',
+            }).format(val)
+        },
+        earlyProcess(){
+            this.dataBookItemX.price = (parseInt(this.bookX.price));
+            this.dataBookItemX.real_price = (parseInt(this.bookX.price * (1 - this.bookX.sale)));
+            this.dataBookItemX.total = JSON.parse(this.bookX.comment_json).length;
+            this.dataBookItemX.rate_point = this.bookX.total?(JSON.parse(this.bookX.comment_json).map(el => el.star).reduce((a, b) => a+b)/this.bookX.total).toFixed(1) : 0;
+            this.dataBookItemX.comment_json = JSON.parse(this.bookX.comment_json);
         }
 
     },
@@ -89,7 +100,8 @@ export default {
         dataBookItem:{
             handler(val){
                 this.dataBookItemX = val;
-                this.reloadSimilarBook()
+                this.reloadSimilarBook();
+                this.earlyProcess();
             },
             immediate: true,
             deep: true

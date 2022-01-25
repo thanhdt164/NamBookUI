@@ -20,6 +20,38 @@ class bookAPI extends baseAPI {
     }
 
     /**
+     * Hàm lấy dữ liệu xếp hạng sách
+     * @param {*} callback 
+     * @param {*} route 
+     * @returns 
+     */
+    getTopChart(callback, route = 'top-chart') {
+        return http.get(`${this.name}/${route}`)
+            .then(response => {
+                if (response && response.status == 200) {
+                    callback ? callback(response.data) : true;
+                }
+            })
+            .catch(e => console.log(e));
+    }
+
+    /**
+     * Hàm lấy dữ liệu sách mới cập nhật
+     * @param {*} callback 
+     * @param {*} route 
+     * @returns 
+     */
+    getTopArrivals(callback, route = 'top-arrivals') {
+        return http.get(`${this.name}/${route}`)
+            .then(response => {
+                if (response && response.status == 200) {
+                    callback ? callback(response.data) : true;
+                }
+            })
+            .catch(e => console.log(e));
+    }
+
+    /**
      * Hàm lấy dữ liệu sách theo genresIds
      * Created by: thanhdt - 09.05.2021
      * @param {*} genresIds 
@@ -63,6 +95,23 @@ class bookAPI extends baseAPI {
      */
     getBooksByGenresId2(genresId, callback) {
         return http.post(`${this.name}/bookbygenres`, genresId)
+            .then(response => {
+                if (response && response.status == 200) {
+                    callback ? callback(response.data) : true;
+                }
+            })
+            .catch(e => console.log(e));
+    }
+
+    /**
+     * Hàm tìm kiếm
+     * Created by: thanhdt - 09.05.2021
+     * @param {*} param
+     * @param {*} callback 
+     * @returns 
+     */
+    search(param, callback) {
+        return http.post(`${this.name}/search`, param)
             .then(response => {
                 if (response && response.status == 200) {
                     callback ? callback(response.data) : true;

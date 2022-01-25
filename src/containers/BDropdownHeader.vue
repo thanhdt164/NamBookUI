@@ -14,44 +14,44 @@
         </div>
       </CHeaderNavLink>
     </template>
-    <CDropdownHeader tag="div" class="text-center" color="light">
-      <strong>Account</strong>
+    <!-- <CDropdownHeader tag="div" class="text-center" color="light">
+      <strong>Tài khoản</strong>
     </CDropdownHeader>
     <CDropdownItem>
-      <CIcon name="cil-bell"/> Updates
+      <CIcon name="cil-bell"/> Thông báo
       <CBadge color="info" class="mfs-auto">{{ itemsCount }}</CBadge>
     </CDropdownItem>
     <CDropdownItem>
-      <CIcon name="cil-envelope-open" /> Messages
+      <CIcon name="cil-envelope-open" /> Hộp thoại
       <CBadge color="success" class="mfs-auto">{{ itemsCount }}</CBadge>
     </CDropdownItem>
     <CDropdownItem>
-      <CIcon name="cil-comment-square" /> Comments
+      <CIcon name="cil-comment-square" /> Bình luận
       <CBadge color="warning" class="mfs-auto">{{ itemsCount }}</CBadge>
-    </CDropdownItem>
+    </CDropdownItem> -->
     <CDropdownHeader
       tag="div"
       class="text-center"
       color="light"
     >
-      <strong>Settings</strong>
+      <strong>Thiết lập</strong>
     </CDropdownHeader>
-    <CDropdownItem @click="mangermentsClicked">
-      <CIcon name="cil-settings"/> Managerments
+    <CDropdownItem v-if="userInfoX&&userInfoX.role_ids.includes('4')" @click="mangermentsClicked">
+      <CIcon name="cil-settings"/> Quản trị website
     </CDropdownItem>
-    <CDropdownItem>
-      <CIcon name="cil-user" /> Profile
+    <CDropdownItem @click="profileClicked">
+      <CIcon name="cil-user" /> Hồ sơ
     </CDropdownItem>
-    <CDropdownItem>
-      <CIcon name="cil-dollar" /> Payments
+    <!-- <CDropdownItem>
+      <CIcon name="cil-dollar" /> Thanh toán
       <CBadge color="secondary" class="mfs-auto">{{ itemsCount }}</CBadge>
-    </CDropdownItem>
+    </CDropdownItem> -->
     <CDropdownDivider/>
-    <CDropdownItem>
-      <CIcon name="cil-shield-alt" /> Lock Account
+    <CDropdownItem @click="homeClicked">
+      <CIcon name="cil-laptop" /> Trang chủ
     </CDropdownItem>
     <CDropdownItem @click="logoutClicked">
-      <CIcon name="cil-lock-locked" /> Logout
+      <CIcon name="cil-lock-locked" /> Đăng xuất
     </CDropdownItem>
   </CDropdown>
 </template>
@@ -84,8 +84,14 @@ export default {
     mangermentsClicked(){
       this.$router.push({ name: 'Dashboard'})
     },
+    profileClicked(){
+      this.$router.push({ name: 'Profile'})
+    },
     logoutClicked(){
       this.$router.push({ name: 'Login'})
+    },
+    homeClicked(){
+      this.$router.push({ name: 'home'})
     }
   },
 }

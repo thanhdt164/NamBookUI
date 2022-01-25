@@ -9,7 +9,7 @@
       <CHeaderNavLink>
         <div class="c-avatar">
           <img
-            src="https://lh3.googleusercontent.com/ogw/ADGmqu9HKP2aukmMBAbPzUiv7aM7E9WJ1sXtDvJr7iXm=s32-c-mo"
+            :src="userInfoX?userInfoX.user_avatar:'https://lh3.googleusercontent.com/ogw/ADGmqu9HKP2aukmMBAbPzUiv7aM7E9WJ1sXtDvJr7iXm=s32-c-mo'"
             class="c-avatar-img "
           />
         </div>
@@ -68,11 +68,26 @@
 <script>
 export default {
   name: 'TheHeaderDropdownAccnt',
+  props:{
+      userInfo:{
+        type: Object,
+        default: () => {}
+      }
+    },
   data () {
     return { 
-      itemsCount: 42
+      itemsCount: 42,
+      userInfoX: null
     }
-  }
+  },
+  watch:{
+      userInfo: {
+          handler(val){
+              this.userInfoX = val
+          },
+          immediate: true
+      }
+  },
 }
 </script>
 

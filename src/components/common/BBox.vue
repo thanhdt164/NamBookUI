@@ -1,10 +1,10 @@
 <template>
     <div class="box">
             <div class="header-box">
-                <div class="title">More like {{items[0].genres_nm}}</div>
-                <!-- <div class="title">More like DTThanh</div> -->
-                <div class="see-more" v-if="!isGenresFilter">
-                    <button type="button" class="btn btn-primary">See more</button>
+                <div v-if="items.length>1" class="title"> {{items[0].genres_nm}}</div>
+                <div v-else class="title">Không tìm thấy dữ liệu!!!</div>
+                <div class="see-more" v-if="isShowSeeMore">
+                    <button type="button" class="btn btn-primary" @click="watchMoreClicked(items)">Xem thêm</button>
                 </div>
             </div>
             <div :class="[isGenresFilter?'isGenresFilter':'' ,'content-box']">
@@ -42,11 +42,21 @@ export default {
         isGenresFilter: {
             type: Boolean,
             default: false
+        },
+        isShowSeeMore: {
+            type: Boolean,
+            default: true
         }
     },
     methods: {
         paymentHome(book){
             this.$emit("paymentHome", book)
+        },
+        watchMoreClicked(){
+            // setTimeout(() => {
+            //     this.$router.push({ name: 'book-by-genres', params: {genresId: items[0].genres_id } })
+            //     this.$emit("bookClicked")
+            // }, 0);
         }
     },
 
